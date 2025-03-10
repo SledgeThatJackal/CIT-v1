@@ -24,6 +24,9 @@ function Navbar() {
               href="/"
               className="mr-auto text-lg hover:underline flex items-center"
             >
+              CIT
+            </Link>
+            <Link href="/" className="hover:bg-accent flex items-center px-2">
               Home
             </Link>
             <Link
