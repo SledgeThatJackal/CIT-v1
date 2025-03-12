@@ -1,8 +1,14 @@
 "use server";
 
 import { getCurrentUser } from "@/services/clerk";
-import { insertContainer } from "../db/containers";
-import { canCreateContainer } from "../permissions/container";
+import {
+  insertContainer,
+  deleteContainer as deleteContainerDb,
+} from "../db/containers";
+import {
+  canCreateContainer,
+  canDeleteContainer,
+} from "../permissions/container";
 import {
   createContainerSchema,
   CreateContainerType,
@@ -18,5 +24,16 @@ export async function createContainer(rawData: CreateContainerType) {
 
   return {
     message: `Successfully created your container: ${container.name} (${container.barcodeId})`,
+  };
+}
+
+export async function deleteContainer(id: string) {
+  if (!canDeleteContainer(await getCurrentUser()))
+    return new Error("There was an error deleting your container");
+
+  await deleteContainerDb(id);
+
+  return {
+    message: "Successfully deleted container",
   };
 }

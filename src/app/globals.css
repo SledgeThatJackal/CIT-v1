@@ -52,6 +52,7 @@ body {
 @theme {
   --color-accent-alternate: rgb(61 68 77);
   --color-table-header: rgb(21 27 35);
+  --color-navbar-background: rgb(1, 4, 9);
 }
 
 @theme inline {

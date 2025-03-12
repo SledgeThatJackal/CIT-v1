@@ -1,17 +1,15 @@
 "use client";
 
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { ContainerType } from "../schema/containers";
-import ImageCell from "@/components/renderers/ImageCell";
-import EditCell from "@/components/renderers/EditCell";
-import ParentCell from "@/components/renderers/ParentCell";
 import BooleanCell from "@/components/renderers/BooleanCell";
-import ActionsCell from "@/components/renderers/ActionsCell";
+import EditCell from "@/components/renderers/EditCell";
+import ImageCell from "@/components/renderers/ImageCell";
+import ParentCell from "@/components/renderers/ParentCell";
 import DataTableHeader from "@/components/table/DataTableHeader";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import ActionsContainerCell from "../components/actions/ActionsContainerCell";
+import { ContainerType } from "../schema/containers";
 
 const columnHelper = createColumnHelper<ContainerType>();
-
-const data: ContainerType[] = [];
 
 const columns: ColumnDef<ContainerType>[] = [
   {
@@ -59,8 +57,8 @@ const columns: ColumnDef<ContainerType>[] = [
         column={column}
       />
     ),
-    cell: ActionsCell,
+    cell: ActionsContainerCell,
   }),
 ];
 
-export { data, columns };
+export { columns };

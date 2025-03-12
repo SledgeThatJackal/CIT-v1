@@ -1,3 +1,4 @@
+import ActiveLink from "@/components/ActiveLink";
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
@@ -16,8 +17,8 @@ export default function UserLayout({
 
 function Navbar() {
   return (
-    <header className="flex h-12 shadow bg-background z-10 ml-3">
-      <nav className="flex gap-4 container">
+    <header className="flex h-12 shadow bg-navbar-background z-10 pl-3 pr-3 border-0 border-b-2 border-accent-alternate">
+      <nav className="flex gap-4 w-full">
         <Suspense>
           <SignedIn>
             <Link
@@ -26,39 +27,12 @@ function Navbar() {
             >
               CIT
             </Link>
-            <Link href="/" className="hover:bg-accent flex items-center px-2">
-              Home
-            </Link>
-            <Link
-              href="/container"
-              className="hover:bg-accent flex items-center px-2"
-            >
-              Containers
-            </Link>
-            <Link
-              href="/item"
-              className="hover:bg-accent flex items-center px-2"
-            >
-              Items
-            </Link>
-            <Link
-              href="/tag"
-              className="hover:bg-accent flex items-center px-2"
-            >
-              Tags
-            </Link>
-            <Link
-              href="/type"
-              className="hover:bg-accent flex items-center px-2"
-            >
-              Types
-            </Link>
-            <Link
-              href="/settings"
-              className="hover:bg-accent flex items-center px-2"
-            >
-              Settings
-            </Link>
+            <ActiveLink href="/">Home</ActiveLink>
+            <ActiveLink href="/container">Containers</ActiveLink>
+            <ActiveLink href="/item">Items</ActiveLink>
+            <ActiveLink href="/tag">Tags</ActiveLink>
+            <ActiveLink href="/type">Types</ActiveLink>
+            <ActiveLink href="/settings">Settings</ActiveLink>
           </SignedIn>
           <div className="size-8 self-center">
             <UserButton

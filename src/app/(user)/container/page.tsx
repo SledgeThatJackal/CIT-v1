@@ -1,10 +1,100 @@
 import DataTable from "@/components/table/DataTable";
-import { data, columns } from "@/features/containers/data/useTableData";
+import { db } from "@/drizzle/db";
+import {
+  ContainerImageTable,
+  ContainerTable,
+  ImageTable,
+} from "@/drizzle/schema";
+import CreateContainerButton from "@/features/containers/components/CreateContainerButton";
+import { columns } from "@/features/containers/data/useTableData";
+import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
+import { ContainerType } from "@/features/containers/schema/containers";
+import { asc, eq } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+import { Suspense } from "react";
 
-export default function Container() {
+export default async function ContainerPage() {
+  const containerData = await getContainers();
+
   return (
     <div className="container mx-auto py-10">
-      <DataTable data={data} columns={columns} />
+      <Suspense fallback={<div className="text-xl">No containers found</div>}>
+        <DataTable data={containerData} columns={columns} />
+        <CreateContainerButton />
+      </Suspense>
     </div>
   );
+}
+
+async function getContainers() {
+  "use cache";
+
+  cacheTag(getContainerGlobalTag());
+
+  const ParentContainer = alias(ContainerTable, "parent");
+
+  const rows = db
+    .select({
+      id: ContainerTable.id,
+      name: ContainerTable.name,
+      description: ContainerTable.description,
+      barcodeId: ContainerTable.barcodeId,
+      isArea: ContainerTable.isArea,
+      createdAt: ContainerTable.createdAt,
+      updatedAt: ContainerTable.updatedAt,
+      parent: {
+        id: ParentContainer.parentId,
+        name: ParentContainer.name,
+        barcodeId: ParentContainer.barcodeId,
+        isArea: ParentContainer.isArea,
+      },
+      containerImage: {
+        id: ContainerImageTable.id,
+        imageId: ImageTable.id,
+        fileName: ImageTable.fileName,
+        imageOrder: ContainerImageTable.imageOrder,
+      },
+    })
+    .from(ContainerTable)
+    .leftJoin(ParentContainer, eq(ContainerTable.parentId, ParentContainer.id))
+    .leftJoin(
+      ContainerImageTable,
+      eq(ContainerImageTable.containerId, ContainerTable.id)
+    )
+    .leftJoin(ImageTable, eq(ImageTable.id, ContainerImageTable.imageId))
+    .orderBy(asc(ContainerTable.name));
+
+  const containers = new Map<string, ContainerType>();
+
+  (await rows).forEach((row) => {
+    if (!containers.has(row.id)) {
+      containers.set(row.id, {
+        id: row.id,
+        name: row.name,
+        description: row.description ?? "",
+        barcodeId: row.barcodeId,
+        isArea: row.isArea,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        parent: row.parent,
+        containerImages: [],
+      });
+    }
+
+    const container = containers.get(row.id);
+
+    if (row.containerImage.id) {
+      container?.containerImages.push({
+        id: row.containerImage.id,
+        imageOrder: row.containerImage.imageOrder ?? 0,
+        image: {
+          id: row.containerImage.imageId ?? "",
+          fileName: row.containerImage.fileName ?? "",
+        },
+      });
+    }
+  });
+
+  return Array.from(containers.values());
 }
