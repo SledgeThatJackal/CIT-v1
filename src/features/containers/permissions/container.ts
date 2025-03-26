@@ -8,6 +8,14 @@ export function canUpdateContainer({ role }: { role: UserRole | undefined }) {
   return role === "admin";
 }
 
+export function canUpdateContainerImage({
+  role,
+}: {
+  role: UserRole | undefined;
+}) {
+  return role === "admin";
+}
+
 export function canDeleteContainer({ role }: { role: UserRole | undefined }) {
   return role === "admin";
 }

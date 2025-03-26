@@ -9,6 +9,7 @@ import CreateContainerButton from "@/features/containers/components/CreateContai
 import { columns } from "@/features/containers/data/useTableData";
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
 import { ContainerType } from "@/features/containers/schema/containers";
+import { getImageGlobalTag } from "@/features/images/db/cache/images";
 import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
@@ -16,12 +17,16 @@ import { Suspense } from "react";
 
 export default async function ContainerPage() {
   const containerData = await getContainers();
+  const images = await getImages();
 
   return (
     <div className="container mx-auto py-10">
       <Suspense fallback={<div className="text-xl">No containers found</div>}>
         <DataTable data={containerData} columns={columns} />
-        <CreateContainerButton />
+        <CreateContainerButton
+          parentContainers={containerData}
+          images={images}
+        />
       </Suspense>
     </div>
   );
@@ -44,7 +49,7 @@ async function getContainers() {
       createdAt: ContainerTable.createdAt,
       updatedAt: ContainerTable.updatedAt,
       parent: {
-        id: ParentContainer.parentId,
+        id: ParentContainer.id,
         name: ParentContainer.name,
         barcodeId: ParentContainer.barcodeId,
         isArea: ParentContainer.isArea,
@@ -97,4 +102,17 @@ async function getContainers() {
   });
 
   return Array.from(containers.values());
+}
+
+async function getImages() {
+  "use cache";
+
+  cacheTag(getImageGlobalTag());
+
+  return await db.query.ImageTable.findMany({
+    columns: {
+      id: true,
+      fileName: true,
+    },
+  });
 }

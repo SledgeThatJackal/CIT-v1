@@ -14,7 +14,13 @@ const columnHelper = createColumnHelper<ContainerType>();
 const columns: ColumnDef<ContainerType>[] = [
   {
     accessorKey: "containerImages",
-    header: () => null,
+    header: ({ column }) => (
+      <DataTableHeader
+        title="Image(s)"
+        column={column}
+        className="text-center"
+      />
+    ),
     cell: ImageCell,
   },
   {

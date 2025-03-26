@@ -1,0 +1,63 @@
+import {
+  getContainerTag,
+  getGlobalTag,
+  getIdTag,
+  getItemTag,
+} from "@/lib/dataCache";
+import { revalidateTag } from "next/cache";
+
+export function getImageGlobalTag() {
+  return getGlobalTag("images");
+}
+
+export function getImageIdTag(id: string) {
+  return getIdTag("images", id);
+}
+
+export function getContainerImageIdTag(id: string) {
+  return getIdTag("containerImages", id);
+}
+
+export function getContainerImageTag(containerId: string) {
+  return getContainerTag("containerImages", containerId);
+}
+
+export function getItemImageIdTag(id: string) {
+  return getIdTag("itemImages", id);
+}
+
+export function getItemImageTag(itemId: string) {
+  return getItemTag("itemImages", itemId);
+}
+
+export function revalidateImageCache(ids: string | string[]) {
+  revalidateTag(getImageGlobalTag());
+
+  if (Array.isArray(ids)) {
+    for (const id in ids) {
+      revalidateTag(getImageIdTag(id));
+    }
+  } else {
+    revalidateTag(getImageIdTag(ids));
+  }
+}
+
+export function revalidateContainerImageCache(
+  id: string,
+  containerId: string,
+  imageId: string
+) {
+  revalidateTag(getContainerImageIdTag(id));
+  revalidateTag(getContainerImageTag(containerId));
+  revalidateTag(getImageIdTag(imageId));
+}
+
+export function revalidateItemImageCache(
+  id: string,
+  itemId: string,
+  imageId: string
+) {
+  revalidateTag(getItemImageIdTag(id));
+  revalidateTag(getItemImageTag(itemId));
+  revalidateTag(getImageIdTag(imageId));
+}

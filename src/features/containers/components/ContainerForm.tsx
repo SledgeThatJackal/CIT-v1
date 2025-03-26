@@ -3,6 +3,8 @@
 import { RequiredIcon } from "@/components/table/RequiredIcon";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import FormCombobox from "@/components/ui/custom/form-combobox";
+import ImageSelector from "@/components/ui/custom/image-selector";
 import {
   Form,
   FormControl,
@@ -16,15 +18,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { showPromiseToast } from "@/util/Toasts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createContainer } from "../actions/containers";
+import { createContainer, updateContainer } from "../actions/containers";
 import {
   createContainerSchema,
   CreateContainerType,
 } from "../schema/containers";
 
 export default function ContainerForm({
+  parentContainers,
   container,
+  images,
 }: {
+  parentContainers: {
+    id: string;
+    name: string;
+    barcodeId: string;
+  }[];
   container?: {
     id: string;
     name: string;
@@ -32,7 +41,12 @@ export default function ContainerForm({
     barcodeId: string;
     parentId?: string;
     isArea: boolean;
+    containerImages?: string[];
   };
+  images: {
+    id: string;
+    fileName: string;
+  }[];
 }) {
   const form = useForm<CreateContainerType>({
     resolver: zodResolver(createContainerSchema),
@@ -40,12 +54,18 @@ export default function ContainerForm({
       name: "",
       description: "",
       barcodeId: "",
+      parentId: "",
       isArea: false,
+      containerImages: [],
     },
   });
 
   async function onSubmit(values: CreateContainerType) {
-    const promise = () => createContainer(values);
+    const action = container
+      ? updateContainer.bind(null, container.id)
+      : createContainer;
+
+    const promise = () => action(values);
 
     showPromiseToast<{
       message: string;
@@ -101,22 +121,17 @@ export default function ContainerForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="parent"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Parent</FormLabel>
-              <FormControl>{/* <Input {...field} /> */}</FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <FormCombobox
+          form={form}
+          listData={parentContainers}
+          path="parentId"
+          label="Parent"
         />
         <FormField
           control={form.control}
           name="isArea"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col-2">
               <FormLabel>
                 <RequiredIcon /> Area
               </FormLabel>
@@ -130,12 +145,25 @@ export default function ContainerForm({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="containerImages"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <ImageSelector
+                  options={images}
+                  selectedImages={field.value ?? []}
+                  onSelectedImageChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="self-end">
-          <Button
-            disabled={form.formState.isSubmitting}
-            type="submit"
-            onClick={() => console.log(form.getValues())}
-          >
+          <Button disabled={form.formState.isSubmitting} type="submit">
             Save
           </Button>
         </div>

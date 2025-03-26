@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   experimental: {
     dynamicIO: true,
     authInterrupts: true,
+    serverActions: {
+      bodySizeLimit: "8mb",
+    },
   },
 };
 

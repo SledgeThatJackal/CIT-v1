@@ -1,6 +1,12 @@
-import { toast } from "sonner";
+import { toast, ToasterProps } from "sonner";
 
 type ToastTypes = "success" | "info" | "warning" | "error" | "loading";
+
+type ToasterToast = ToasterProps & {
+  id: string;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+};
 
 export function showToast(
   type: ToastTypes,
@@ -10,18 +16,19 @@ export function showToast(
   toast[type](title, { description });
 }
 
-export function showActionToast(
-  title: string,
-  label: string,
-  onClick: () => void,
-  description?: string
-) {
-  toast(title, {
-    description,
-    action: {
-      label,
-      onClick,
-    },
+type Toast = Omit<ToasterToast, "id">;
+
+export function showActionToast({
+  actionData,
+  ...props
+}: Omit<Toast, "title" | "description" | "variant"> & {
+  actionData: { error?: Error; message?: string };
+}) {
+  toast(actionData?.error ? "Error" : "Success", {
+    ...props,
+    description: actionData?.error
+      ? actionData.error.message
+      : actionData.message,
   });
 }
 
@@ -34,6 +41,24 @@ export function showPromiseToast<T extends { message: string }>(
     loading,
     success: (data: T) => {
       func?.();
+      return data.message;
+    },
+    error: (error: Error) => {
+      return error.message;
+    },
+  });
+}
+
+export function showPromiseToastAndReturnValue<T extends { message: string }>(
+  promise: () => Promise<T>,
+  loading: string,
+  returnFunc: (data: T) => void
+) {
+  toast.promise(promise, {
+    loading,
+    success: (data: T) => {
+      returnFunc(data);
+
       return data.message;
     },
     error: (error: Error) => {

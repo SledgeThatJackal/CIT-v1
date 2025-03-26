@@ -1,15 +1,5 @@
+import { imageJoinSchema } from "@/features/images/schema/images";
 import { z } from "zod";
-
-const image = z.object({
-  id: z.string().uuid().min(1, "Required"),
-  fileName: z.string().min(1, "Required"),
-});
-
-const containerImageSchema = z.object({
-  id: z.string().uuid().min(1, "Required"),
-  image,
-  imageOrder: z.number(),
-});
 
 export const parentContainerSchema = z.object({
   id: z.string().uuid().min(1, "Required").nullable(),
@@ -25,7 +15,7 @@ export const containerSchema = z.object({
   barcodeId: z.string().min(1, "Required"),
   parent: parentContainerSchema.nullable(),
   isArea: z.boolean(),
-  containerImages: z.array(containerImageSchema),
+  containerImages: z.array(imageJoinSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -36,6 +26,7 @@ export const createContainerSchema = z.object({
   barcodeId: z.string().min(1, "Required"),
   parentId: z.string().uuid().optional(),
   isArea: z.boolean(),
+  containerImages: z.array(z.string()).optional(),
 });
 
 export type ContainerType = z.infer<typeof containerSchema>;

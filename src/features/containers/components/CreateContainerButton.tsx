@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -10,8 +11,15 @@ import {
 import { PlusIcon } from "lucide-react";
 import React, { useState } from "react";
 import ContainerForm from "./ContainerForm";
+import { ContainerType } from "../schema/containers";
 
-export default function CreateContainerButton() {
+export default function CreateContainerButton({
+  parentContainers,
+  images,
+}: {
+  parentContainers: ContainerType[];
+  images: { id: string; fileName: string }[];
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,10 +32,14 @@ export default function CreateContainerButton() {
           <DialogHeader>
             <DialogTitle>Create</DialogTitle>
           </DialogHeader>
-          <div>
-            <ContainerForm />
+          <div className="overflow-y-auto">
+            <ContainerForm
+              parentContainers={parentContainers}
+              images={images}
+            />
           </div>
         </DialogContent>
+        <DialogDescription />
       </Dialog>
     </React.Fragment>
   );

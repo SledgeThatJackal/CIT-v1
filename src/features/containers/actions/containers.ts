@@ -2,12 +2,16 @@
 
 import { getCurrentUser } from "@/services/clerk";
 import {
-  insertContainer,
   deleteContainer as deleteContainerDb,
+  insertContainer,
+  updateContainer as updateContainerDb,
+  updateImageOrders as updateImageOrdersDb,
 } from "../db/containers";
 import {
   canCreateContainer,
   canDeleteContainer,
+  canUpdateContainer,
+  canUpdateContainerImage,
 } from "../permissions/container";
 import {
   createContainerSchema,
@@ -24,6 +28,33 @@ export async function createContainer(rawData: CreateContainerType) {
 
   return {
     message: `Successfully created your container: ${container.name} (${container.barcodeId})`,
+  };
+}
+
+export async function updateContainer(
+  id: string,
+  rawData: CreateContainerType
+) {
+  const { success, data } = createContainerSchema.safeParse(rawData);
+
+  if (!success || !canUpdateContainer(await getCurrentUser()))
+    return new Error("There was an error updating your container");
+
+  const container = await updateContainerDb(id, data);
+
+  return {
+    message: `Successfully updated your container: ${container.name} (${container.barcodeId})`,
+  };
+}
+
+export async function updateImageOrders(imageIds: string[]) {
+  if (imageIds.length === 0 || !canUpdateContainerImage(await getCurrentUser()))
+    return new Error("There was an error updating your image order");
+
+  await updateImageOrdersDb(imageIds);
+
+  return {
+    message: `Successfully reordered your images`,
   };
 }
 
