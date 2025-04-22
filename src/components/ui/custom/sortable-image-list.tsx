@@ -1,15 +1,18 @@
 import { SortableItem, SortableList } from "@/components/SortableList";
-import { Trash2Icon } from "lucide-react";
-import { Button } from "../button";
+import TrashButton from "./trash-button";
+
+type DeleteProps = {
+  handleClick: (imageId: string) => void;
+};
 
 export function SortableImageList({
   images,
+  deleteProps,
   handleOrderChange,
-  handleClick,
 }: {
   images: { id: string; fileName: string }[];
   handleOrderChange: (newOrder: string[]) => void;
-  handleClick: (imageId: string) => void;
+  deleteProps?: DeleteProps;
 }) {
   return (
     <SortableList items={images} onOrderChange={handleOrderChange}>
@@ -21,15 +24,9 @@ export function SortableImageList({
             className="flex items-center"
           >
             <div className="contents">{item.fileName}</div>
-            <Button
-              variant="destructiveOutline"
-              size="sm"
-              onClick={() => handleClick(item.id)}
-              className="ms-auto hover:cursor-pointer"
-            >
-              <Trash2Icon />
-              <span className="sr-only">Delete</span>
-            </Button>
+            {deleteProps && (
+              <TrashButton onClick={() => deleteProps.handleClick(item.id)} />
+            )}
           </SortableItem>
         ))
       }

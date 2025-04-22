@@ -1,4 +1,8 @@
 import {
+  getContainerIdTag,
+  revalidateContainerCache,
+} from "@/features/containers/db/cache/containers";
+import {
   getContainerTag,
   getGlobalTag,
   getIdTag,
@@ -30,16 +34,8 @@ export function getItemImageTag(itemId: string) {
   return getItemTag("itemImages", itemId);
 }
 
-export function revalidateImageCache(ids: string | string[]) {
+export function revalidateImageCache() {
   revalidateTag(getImageGlobalTag());
-
-  if (Array.isArray(ids)) {
-    for (const id in ids) {
-      revalidateTag(getImageIdTag(id));
-    }
-  } else {
-    revalidateTag(getImageIdTag(ids));
-  }
 }
 
 export function revalidateContainerImageCache(
@@ -50,6 +46,7 @@ export function revalidateContainerImageCache(
   revalidateTag(getContainerImageIdTag(id));
   revalidateTag(getContainerImageTag(containerId));
   revalidateTag(getImageIdTag(imageId));
+  revalidateContainerCache(getContainerIdTag(containerId));
 }
 
 export function revalidateItemImageCache(

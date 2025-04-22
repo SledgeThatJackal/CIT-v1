@@ -51,7 +51,7 @@ export function ActionAlertDialog({
   );
 }
 
-function LoadingSwap({
+export function LoadingSwap({
   isLoading,
   children,
 }: {

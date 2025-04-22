@@ -1,4 +1,3 @@
-import DataTable from "@/components/table/DataTable";
 import { db } from "@/drizzle/db";
 import {
   ContainerImageTable,
@@ -6,27 +5,33 @@ import {
   ImageTable,
 } from "@/drizzle/schema";
 import CreateContainerButton from "@/features/containers/components/CreateContainerButton";
-import { columns } from "@/features/containers/data/useTableData";
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
 import { ContainerType } from "@/features/containers/schema/containers";
 import { getImageGlobalTag } from "@/features/images/db/cache/images";
+import { ImageProvider } from "@/features/images/hooks/useImages";
 import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
+import ContainerDataTable from "@/features/containers/components/ContainerDataTable";
 
-export default async function ContainerPage() {
+export default async function ContainerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const filters = (await searchParams).filters;
+
   const containerData = await getContainers();
   const images = await getImages();
 
   return (
     <div className="container mx-auto py-10">
       <Suspense fallback={<div className="text-xl">No containers found</div>}>
-        <DataTable data={containerData} columns={columns} />
-        <CreateContainerButton
-          parentContainers={containerData}
-          images={images}
-        />
+        <ImageProvider images={images}>
+          <ContainerDataTable containers={containerData} />
+          <CreateContainerButton parentContainers={containerData} />
+        </ImageProvider>
       </Suspense>
     </div>
   );
@@ -104,7 +109,7 @@ async function getContainers() {
   return Array.from(containers.values());
 }
 
-async function getImages() {
+export async function getImages() {
   "use cache";
 
   cacheTag(getImageGlobalTag());

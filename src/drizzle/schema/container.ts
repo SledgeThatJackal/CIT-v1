@@ -2,6 +2,7 @@ import { boolean, foreignKey, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "../schemaHelper";
 import { relations } from "drizzle-orm";
 import { ContainerItemTable } from "./containerItem";
+import { ContainerImageTable } from "./containerImage";
 
 export const ContainerTable = pgTable(
   "containers",
@@ -26,4 +27,5 @@ export const ContainerTable = pgTable(
 
 export const ContainerRelationships = relations(ContainerTable, ({ many }) => ({
   containerItems: many(ContainerItemTable),
+  containerImages: many(ContainerImageTable),
 }));

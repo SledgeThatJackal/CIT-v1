@@ -27,7 +27,6 @@ import {
 export default function ContainerForm({
   parentContainers,
   container,
-  images,
 }: {
   parentContainers: {
     id: string;
@@ -43,10 +42,6 @@ export default function ContainerForm({
     isArea: boolean;
     containerImages?: string[];
   };
-  images: {
-    id: string;
-    fileName: string;
-  }[];
 }) {
   const form = useForm<CreateContainerType>({
     resolver: zodResolver(createContainerSchema),
@@ -54,7 +49,6 @@ export default function ContainerForm({
       name: "",
       description: "",
       barcodeId: "",
-      parentId: "",
       isArea: false,
       containerImages: [],
     },
@@ -153,7 +147,6 @@ export default function ContainerForm({
               <FormLabel>Images</FormLabel>
               <FormControl>
                 <ImageSelector
-                  options={images}
                   selectedImages={field.value ?? []}
                   onSelectedImageChange={field.onChange}
                 />

@@ -1,16 +1,10 @@
 "use client";
 
+import { showPromiseToast } from "@/util/Toasts";
 import { CellContext } from "@tanstack/react-table";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "../ui/input";
 import ReadCell from "./ReadCell";
-import {
-  ContainerType,
-  CreateContainerType,
-} from "@/features/containers/schema/containers";
-import { updateContainer } from "@/features/containers/actions/containers";
-import { showPromiseToast } from "@/util/Toasts";
 
 type HasId = {
   id: string;
@@ -19,7 +13,7 @@ type HasId = {
 export default function EditCell<
   T extends HasId,
   S extends string | number | undefined
->({ getValue, row, column: { id } }: CellContext<T, S>) {
+>({ getValue, row, column: { id }, table }: CellContext<T, S>) {
   const initialValue = getValue();
 
   const [value, setValue] = useState<string | number | undefined>(initialValue);
@@ -35,36 +29,17 @@ export default function EditCell<
     if (!isCancelled) {
       const objectId = row.original.id;
       const updatedRow = { ...row.original, [id]: value };
-      let action;
 
-      const isContainer = findObjectType(row.original);
+      if (table.options.meta?.updateData == null) return;
 
-      if (isContainer) {
-        // Container
-        action = updateContainer.bind(null, objectId);
-      } else {
-        // Item
-        action = (): Promise<{ message: string }> =>
-          new Promise(() => {
-            return { message: "IMPLEMENT ME" };
-          });
-        // action = updateItem.bind(null, objectId);
-      }
+      const action = table.options.meta.updateData.bind(null, objectId);
 
-      const promise = () =>
-        action(updatedRow as unknown as CreateContainerType);
+      const promise = () => action(updatedRow);
 
-      showPromiseToast(
-        promise,
-        `Attempting to update ${isContainer ? "container" : "item"}`
-      );
+      showPromiseToast(promise, `Attempting to update row data`);
     }
 
     setIsEditing(false);
-  }
-
-  function findObjectType(obj: unknown) {
-    return (obj as ContainerType)?.barcodeId !== undefined;
   }
 
   function handleKeyDown(e: React.KeyboardEvent<unknown>) {

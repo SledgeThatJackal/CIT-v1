@@ -1,22 +1,30 @@
 "use client";
 
+import { useImages } from "@/features/images/hooks/useImages";
+import { cn } from "@/lib/utils";
 import { showPromiseToastAndReturnValue } from "@/util/Toasts";
 import React, { useRef } from "react";
-import { MultiSelect } from "./multi-select";
 import { Button } from "../button";
-import { cn } from "@/lib/utils";
+import { MultiSelect } from "./multi-select";
 import { SortableImageList } from "./sortable-image-list";
 
 export default function ImageSelector({
   selectedImages = [],
-  options,
   onSelectedImageChange,
+  filterFunc,
 }: {
   selectedImages?: string[];
-  options: { id: string; fileName: string }[];
   onSelectedImageChange: (images: string[]) => void;
+  filterFunc?: (
+    options: {
+      id: string;
+      fileName: string;
+    }[]
+  ) => { id: string; fileName: string }[];
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const options = useImages();
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -57,7 +65,7 @@ export default function ImageSelector({
   }
 
   return (
-    <div className="text-sm border border-accent-alternate rounded-lg">
+    <div className="text-sm border border-accent-alternate rounded-lg bg-background">
       <input
         type="file"
         id="image-selector"
@@ -94,7 +102,7 @@ export default function ImageSelector({
         <MultiSelect
           selectPlaceholder="Add existing images"
           searchPlaceholder="Search images"
-          options={options}
+          options={filterFunc ? filterFunc(options) : options}
           getLabel={(i) => i.fileName}
           getValue={(i) => i.id}
           selectedValues={selectedImages}
@@ -106,14 +114,17 @@ export default function ImageSelector({
         <div className="p-0.5">
           <SortableImageList
             images={selectedImages.map((image) => {
-              return options.find((option) => option.id === image)!;
+              return options.find((option) => {
+                return option.id === image;
+              })!;
             })}
             handleOrderChange={onSelectedImageChange}
-            handleClick={(id: string) =>
-              onSelectedImageChange(
-                selectedImages.filter((image) => image !== id)
-              )
-            }
+            deleteProps={{
+              handleClick: (id: string) =>
+                onSelectedImageChange(
+                  selectedImages.filter((image) => image !== id)
+                ),
+            }}
           />
         </div>
       )}

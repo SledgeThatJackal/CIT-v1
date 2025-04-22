@@ -14,7 +14,7 @@ export async function insertImages(fileNames: { fileName: string }[]) {
 
   if (images == null) throw new Error("Failed to create image(s)");
 
-  revalidateImageCache(images.map((image) => image.id));
+  revalidateImageCache();
 
   return images;
 }

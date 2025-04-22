@@ -15,10 +15,8 @@ import { ContainerType } from "../schema/containers";
 
 export default function CreateContainerButton({
   parentContainers,
-  images,
 }: {
   parentContainers: ContainerType[];
-  images: { id: string; fileName: string }[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,13 +28,10 @@ export default function CreateContainerButton({
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create</DialogTitle>
+            <DialogTitle>Creating Container</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto">
-            <ContainerForm
-              parentContainers={parentContainers}
-              images={images}
-            />
+            <ContainerForm parentContainers={parentContainers} />
           </div>
         </DialogContent>
         <DialogDescription />

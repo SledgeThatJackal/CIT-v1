@@ -1,9 +1,15 @@
 "use server";
 
+import {
+  canCreateImage,
+  canDeleteImage,
+} from "@/features/images/permissions/images";
 import { getCurrentUser } from "@/services/clerk";
 import {
   deleteContainer as deleteContainerDb,
+  deleteContainerImages,
   insertContainer,
+  insertContainerImages,
   updateContainer as updateContainerDb,
   updateImageOrders as updateImageOrdersDb,
 } from "../db/containers";
@@ -31,11 +37,26 @@ export async function createContainer(rawData: CreateContainerType) {
   };
 }
 
+export async function createContainerImages(id: string, imageIds: string[]) {
+  const user = await getCurrentUser();
+  if (!canCreateImage(user) || !canCreateContainer(user))
+    return new Error("There was an error creating your images");
+
+  await insertContainerImages(id, imageIds);
+
+  return {
+    message: "Successfully created your images",
+  };
+}
+
 export async function updateContainer(
   id: string,
   rawData: CreateContainerType
 ) {
-  const { success, data } = createContainerSchema.safeParse(rawData);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { containerImages: _, ...rest } = rawData;
+
+  const { success, data } = createContainerSchema.safeParse(rest);
 
   if (!success || !canUpdateContainer(await getCurrentUser()))
     return new Error("There was an error updating your container");
@@ -66,5 +87,17 @@ export async function deleteContainer(id: string) {
 
   return {
     message: "Successfully deleted container",
+  };
+}
+
+export async function deleteContainerImage(id: string) {
+  const user = await getCurrentUser();
+  if (!canDeleteContainer(user) || !canDeleteImage(user))
+    return new Error("There was an error deleting your image");
+
+  await deleteContainerImages(id);
+
+  return {
+    message: "Successfully deleted image",
   };
 }
