@@ -7,7 +7,7 @@ export const TagTable = pgTable("tags", {
   id,
   name: text().notNull(),
   description: text(),
-  color: varchar({ length: 7 }),
+  color: varchar({ length: 7 }).notNull(),
   createdAt,
   updatedAt,
 });
