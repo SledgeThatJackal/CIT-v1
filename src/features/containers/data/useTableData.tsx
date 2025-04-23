@@ -4,7 +4,6 @@ import BooleanCell from "@/components/renderers/BooleanCell";
 import EditCell from "@/components/renderers/EditCell";
 import ImageCell from "@/components/renderers/ImageCell";
 import ParentCell from "@/components/renderers/ParentCell";
-import DataTableHeader from "@/components/table/DataTableHeader";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import ActionsContainerCell from "../components/actions/ActionsContainerCell";
 import { ContainerType } from "../schema/containers";
@@ -14,56 +13,44 @@ const columnHelper = createColumnHelper<ContainerType>();
 const columns: ColumnDef<ContainerType>[] = [
   {
     accessorKey: "containerImages",
-    header: ({ column }) => (
-      <DataTableHeader
-        title="Image(s)"
-        column={column}
-        className="text-center"
-      />
-    ),
+    header: "Image(s)",
     cell: ImageCell,
+    enableSorting: false,
+    enableColumnFilter: false,
   },
   {
     accessorKey: "barcodeId",
-    header: ({ column }) => (
-      <DataTableHeader title="Barcode ID" column={column} />
-    ),
+    header: "Barcode ID",
     cell: EditCell,
   },
   {
     accessorKey: "name",
-    header: ({ column }) => <DataTableHeader title="Name" column={column} />,
+    header: "Name",
     cell: EditCell,
   },
   {
     accessorKey: "description",
-    header: ({ column }) => (
-      <DataTableHeader title="Description" column={column} />
-    ),
+    header: "Description",
     cell: EditCell,
   },
   {
     accessorKey: "parent",
-    header: ({ column }) => <DataTableHeader title="Parent" column={column} />,
+    header: "Parent",
     cell: ParentCell,
   },
   {
     accessorKey: "isArea",
-    header: ({ column }) => (
-      <DataTableHeader className="text-center" title="Area" column={column} />
-    ),
+    header: "Area",
     cell: BooleanCell,
+    enableSorting: false,
+    enableColumnFilter: false,
   },
   columnHelper.display({
     id: "actions",
-    header: ({ column }) => (
-      <DataTableHeader
-        className="text-center"
-        title="Actions"
-        column={column}
-      />
-    ),
+    header: "Actions",
     cell: ActionsContainerCell,
+    enableSorting: false,
+    enableColumnFilter: false,
   }),
 ];
 
