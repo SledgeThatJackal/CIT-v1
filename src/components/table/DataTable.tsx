@@ -9,14 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import {
+  Column,
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  Header,
+  SortDirection,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { InputHTMLAttributes, useEffect, useState } from "react";
+import { Input } from "../ui/input";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -35,7 +45,8 @@ export default function DataTable<TData, TValue>({
   reorderImages,
   deleteImage,
 }: DataTableProps<TData, TValue>) {
-  const [filters, setFilters] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [bodyKey, setBodyKey] = useState(0);
 
   const router = useRouter();
@@ -45,17 +56,25 @@ export default function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     meta: {
       updateData,
       addImages,
       reorderImages,
       deleteImage,
     },
+    state: {
+      sorting,
+      columnFilters,
+    },
   });
 
   function updateFilter() {
     const params = new URLSearchParams(searchParams);
-    params.set("filters", filters);
+    // params.set("filters", columnFilters);
     router.replace(`?${params.toString()}`);
   }
 
@@ -68,18 +87,9 @@ export default function DataTable<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headers) => (
-            <TableRow key={headers.id}>
+            <TableRow key={headers.id} className="h-15">
               {headers.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                );
+                return <CustomHeader key={header.id} header={header} />;
               })}
             </TableRow>
           ))}
@@ -105,5 +115,113 @@ export default function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function CustomHeader<TData>({ header }: { header: Header<TData, unknown> }) {
+  function getTitle(sortDirection: SortDirection | false) {
+    switch (sortDirection) {
+      case "asc": {
+        return "Sort Ascending";
+      }
+      case "desc": {
+        return "Sort Descending";
+      }
+      case false: {
+        return undefined;
+      }
+      default: {
+        return "Clear";
+      }
+    }
+  }
+
+  return (
+    <TableHead colSpan={header.colSpan}>
+      {header.isPlaceholder ? null : (
+        <>
+          <div
+            className={cn(
+              "items-center select-none",
+              header.column.getCanSort()
+                ? "flex flex-row gap-1 cursor-pointer"
+                : "text-center"
+            )}
+            onClick={header.column.getToggleSortingHandler()}
+            title={getTitle(header.column.getNextSortingOrder())}
+          >
+            {flexRender(header.column.columnDef.header, header.getContext())}
+            {{
+              asc: <ChevronUp />,
+              desc: <ChevronDown />,
+            }[header.column.getIsSorted() as string] ?? null}
+          </div>
+          {header.column.getCanFilter() ? (
+            <div>
+              <Filter column={header.column} />
+            </div>
+          ) : null}
+        </>
+      )}
+    </TableHead>
+  );
+}
+
+function Filter<TData>({ column }: { column: Column<TData, unknown> }) {
+  const filterValue = column.getFilterValue();
+  const { filterVariant } = column.columnDef.meta ?? {};
+
+  switch (filterVariant) {
+    case "number": {
+      return <div>IMPLEMENT</div>;
+    }
+    case "select": {
+      return <div>IMPLEMENT</div>;
+    }
+    default: {
+      return (
+        <DebouncedInput
+          onChange={(value) => column.setFilterValue(value)}
+          placeholder="Search..."
+          type="text"
+          value={(filterValue ?? "") as string}
+        />
+      );
+    }
+  }
+}
+
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  debounce?: number;
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <Input
+      {...props}
+      value={value}
+      className="h-[1.5rem] w-auto text-sm"
+      onChange={(e) => setValue(e.target.value)}
+    />
   );
 }

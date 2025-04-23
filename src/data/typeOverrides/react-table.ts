@@ -9,4 +9,9 @@ declare module "@tanstack/react-table" {
     reorderImages?: (ids: string[]) => Promise<{ message: string }>;
     deleteImage?: (id: string) => Promise<{ message: string }>;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
+    filterVariant?: "text" | "number" | "select";
+  }
 }
