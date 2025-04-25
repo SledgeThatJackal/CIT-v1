@@ -30,7 +30,7 @@ export const TypeAttributeTable = pgTable(
     id,
     itemTypeId: uuid()
       .notNull()
-      .references(() => ItemTypeTable.id),
+      .references(() => ItemTypeTable.id, { onDelete: "cascade" }),
     displayOrder: integer().notNull(),
     title: text().notNull(),
     dataType: typeAttributeDataTypeEnum().notNull().default("string"),

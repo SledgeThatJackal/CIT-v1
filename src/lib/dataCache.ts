@@ -11,7 +11,8 @@ type CACHE_TAG =
   | "users"
   | "images"
   | "itemImages"
-  | "itemTags";
+  | "itemTags"
+  | "itemAttributes";
 
 export function getGlobalTag(tag: CACHE_TAG) {
   return `global:${tag}` as const;

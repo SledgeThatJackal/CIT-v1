@@ -16,10 +16,10 @@ export const ItemAttributeTable = pgTable(
     id,
     typeAttributeId: uuid()
       .notNull()
-      .references(() => TypeAttributeTable.id),
+      .references(() => TypeAttributeTable.id, { onDelete: "cascade" }),
     itemId: uuid()
       .notNull()
-      .references(() => ItemTable.id),
+      .references(() => ItemTable.id, { onDelete: "cascade" }),
     textValue: text(),
     numericValue: doublePrecision(),
     createdAt,

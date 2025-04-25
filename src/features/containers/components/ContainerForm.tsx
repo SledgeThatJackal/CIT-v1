@@ -63,7 +63,11 @@ export default function ContainerForm({
 
     showPromiseToast<{
       message: string;
-    }>(promise, "Attempting to create container", form.reset);
+    }>(
+      promise,
+      `Attempting to ${container ? "update" : "create"} container`,
+      form.reset
+    );
   }
 
   return (
