@@ -2,7 +2,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { db } from "@/drizzle/db";
 import { ItemTypeTable } from "@/drizzle/schema";
+import TypeTable from "@/features/types/components/TypeTable";
 import { getTypeGlobalTag } from "@/features/types/db/cache/type";
+import { DetailedTypeSchema } from "@/features/types/schema/type";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import Link from "next/link";
 
@@ -13,9 +15,13 @@ export default async function Type() {
     <div className="container mx-auto py-10">
       <PageHeader title="Types">
         <Button variant="secondary" asChild>
-          <Link href={`/type/create/${types[0]?.id}`}>New Type</Link>
+          <Link href="/type/create/">New Type</Link>
         </Button>
       </PageHeader>
+      <TypeTable types={types} />
+      <div className="mt-10 text-8xl font-bold">
+        FIGURE OUT HOW YOU WANT TO IMPLEMENT DELETING A TYPE ATTRIBUTE
+      </div>
     </div>
   );
 }
@@ -29,5 +35,6 @@ async function getTypes() {
     with: {
       typeAttributes: true,
     },
-  });
+    orderBy: ItemTypeTable.name,
+  }) as unknown as DetailedTypeSchema[];
 }

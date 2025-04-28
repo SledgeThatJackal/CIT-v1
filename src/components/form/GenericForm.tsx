@@ -16,6 +16,7 @@ import {
   FieldValues,
   Path,
   UseFormReturn,
+  useFormState,
   useWatch,
 } from "react-hook-form";
 import DebouncedColorPicker from "../DebouncedColorPicker";
@@ -40,6 +41,10 @@ export default function GenericForm<T extends FieldValues>({
   onSubmit: (values: T) => Promise<void>;
   children: ReactNode;
 }) {
+  const { isValid, isSubmitting, isDirty } = useFormState({
+    control: form.control,
+  });
+
   return (
     <Form {...form}>
       <form
@@ -49,7 +54,7 @@ export default function GenericForm<T extends FieldValues>({
         {children}
         <div className="self-end">
           <Button
-            disabled={form.formState.isSubmitting || !form.formState.isValid}
+            disabled={isSubmitting || !isValid || !isDirty}
             variant="secondary"
             type="submit"
           >

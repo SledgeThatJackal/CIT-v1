@@ -4,8 +4,8 @@ import { z } from "zod";
 export const createTypeAttributeSchema = z.object({
   displayOrder: z.number().positive(),
   dataType: z.enum(typeAttributeDataTypes),
-  textDefaultValue: z.string().optional(),
-  numericDefaultValue: z.number().optional(),
+  textDefaultValue: z.string().optional().nullable(),
+  numericDefaultValue: z.number().optional().nullable(),
   title: z.string().min(1, "Required"),
 });
 

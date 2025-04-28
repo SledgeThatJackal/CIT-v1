@@ -2,17 +2,16 @@
 
 import { getCurrentUser } from "@/services/clerk";
 import {
+  deleteType as deleteTypeDb,
+  insertType,
+  updateType as updateTypeDb,
+} from "../db/type";
+import {
   canCreateType,
   canDeleteType,
   canUpdateType,
 } from "../permissions/type";
 import { formTypeSchema, FormTypeType } from "../schema/type";
-import {
-  insertType,
-  updateType as updateTypeDb,
-  deleteType as deleteTypeDb,
-} from "../db/type";
-import { CreateTypeAttributeType } from "../schema/type-attribute";
 
 export async function createType(rawData: FormTypeType) {
   const { success, data } = formTypeSchema.safeParse(rawData);
@@ -27,13 +26,13 @@ export async function createType(rawData: FormTypeType) {
   };
 }
 
-export async function updateType(id: string, rawData: any) {
+export async function updateType(id: string, rawData: unknown) {
   const { success, data } = formTypeSchema.safeParse(rawData);
 
   if (!success || !canUpdateType(await getCurrentUser()))
     return new Error("There was an error updating your type");
 
-  await updateTypeDb(data);
+  await updateTypeDb(id, data);
 
   return {
     message: `Successfully updated your type`,

@@ -41,14 +41,16 @@ export async function insertType(
 }
 
 export async function updateType(
+  id: string,
   data: Partial<typeof ItemTypeTable.$inferInsert> & {
     typeAttributes?: Partial<typeof TypeAttributeTable.$inferInsert>[];
   }
 ) {
   const updatedType = await db.transaction(async (trx) => {
     const [updatedType] = await trx
-      .insert(ItemTypeTable)
-      .values(data)
+      .update(ItemTypeTable)
+      .set(data)
+      .where(eq(ItemTypeTable.id, id))
       .returning();
 
     if (updatedType == null) {
@@ -72,8 +74,8 @@ export async function updateType(
         })
       );
 
-      typeAttributes.flat().forEach(({ id }) => {
-        revalidateTypeAttributeCache(id);
+      typeAttributes.flat().forEach(({ id: attributeId }) => {
+        revalidateTypeAttributeCache(attributeId, id);
       });
 
       return updatedType;

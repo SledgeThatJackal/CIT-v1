@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { createTypeAttributeSchema } from "./type-attribute";
+import {
+  createTypeAttributeSchema,
+  typeAttributeSchema,
+} from "./type-attribute";
 
 export const createTypeSchema = z.object({
   name: z.string().min(1, "Required"),
@@ -12,9 +15,16 @@ export const typeSchema = createTypeSchema.extend({
 });
 
 export const formTypeSchema = createTypeSchema.extend({
-  typeAttributes: z.array(createTypeAttributeSchema),
+  typeAttributes: z.array(
+    createTypeAttributeSchema.extend({ id: z.string().optional() })
+  ),
+});
+
+export const detailedTypeSchema = typeSchema.extend({
+  typeAttributes: z.array(typeAttributeSchema),
 });
 
 export type CreateTypeType = z.infer<typeof createTypeSchema>;
 export type TypeType = z.infer<typeof typeSchema>;
 export type FormTypeType = z.infer<typeof formTypeSchema>;
+export type DetailedTypeSchema = z.infer<typeof detailedTypeSchema>;

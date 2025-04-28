@@ -3,15 +3,26 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Ellipsis, EllipsisVertical } from "lucide-react";
 import { ReactNode } from "react";
 
-export default function ActionsMenu({ children }: { children: ReactNode }) {
+export default function ActionsMenu({
+  children,
+  isVertical = false,
+  className,
+}: {
+  children: ReactNode;
+  isVertical?: boolean;
+  className?: string;
+}) {
   return (
     <div className="flex justify-center items-center">
       <DropdownMenu>
-        <DropdownMenuTrigger className="hover:bg-accent-alternate rounded">
-          <Ellipsis />
+        <DropdownMenuTrigger
+          className={cn("hover:bg-accent-alternate rounded", className)}
+        >
+          {isVertical ? <EllipsisVertical /> : <Ellipsis />}
         </DropdownMenuTrigger>
         <DropdownMenuContent>{children}</DropdownMenuContent>
       </DropdownMenu>

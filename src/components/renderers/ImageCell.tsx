@@ -42,7 +42,7 @@ export default function ImageCell<
   return (
     <div className="flex justify-center">
       {images.length > 0 ? (
-        <fieldset className="flex items-center border rounded-r-lg max-w-fit ">
+        <fieldset className="flex items-center border rounded-r-lg max-w-fit">
           <HoverCard>
             <HoverCardTrigger className="h-full flex justify-center items-center max-w-fit">
               <Image
