@@ -20,12 +20,18 @@ import {
 import { changeToProperCase } from "@/util/formatters";
 import { Check, ListFilter, X } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { DetailedTypeSchema } from "../schema/type";
 import { TypeAttributeDataType } from "@/drizzle/schema";
+import { ActionAlertDialog } from "@/components/ActionAlertDialog";
+import { deleteTypeAttribute } from "../actions/type-attribute";
+import TrashButton from "@/components/ui/custom/trash-button";
+import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { deleteType } from "../actions/type";
 
 export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
   const [index, setIndex] = useState(0);
+  const alertButton = useRef<HTMLButtonElement>(null);
 
   return (
     <React.Fragment>
@@ -54,9 +60,18 @@ export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
             className="border rounded-none h-9 hover:cursor-pointer"
           >
             <DropdownMenuItem asChild>
-              <Link href={`/type/create/${types[index]?.id}`}>Edit</Link>
+              <Link href={`/type/create/${types[index]?.id}`}>Edit Type</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => alertButton.current?.click()}>
+              Delete Type
             </DropdownMenuItem>
           </ActionsMenu>
+          <ActionAlertDialog
+            action={deleteType.bind(null, types[index]?.id ?? "")}
+            loading={`Attempting to delete type`}
+          >
+            <AlertDialogTrigger ref={alertButton} className="hidden" />
+          </ActionAlertDialog>
         </div>
       </div>
       <Table className="border">
@@ -65,6 +80,7 @@ export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
             <TableHead>Name</TableHead>
             <TableHead>Data Type</TableHead>
             <TableHead>Default Value</TableHead>
+            <TableHead>Remove</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -83,6 +99,16 @@ export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
                       : typeAttribute.numericDefaultValue
                   }
                 ></DefaultValueCell>
+                <TableCell>
+                  <ActionAlertDialog
+                    action={deleteTypeAttribute.bind(null, typeAttribute.id)}
+                    loading={`Attempting to delete type attribute`}
+                  >
+                    <AlertDialogTrigger asChild>
+                      <TrashButton />
+                    </AlertDialogTrigger>
+                  </ActionAlertDialog>
+                </TableCell>
               </TableRow>
             ))
           ) : (

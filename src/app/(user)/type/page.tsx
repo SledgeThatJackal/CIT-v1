@@ -19,9 +19,6 @@ export default async function Type() {
         </Button>
       </PageHeader>
       <TypeTable types={types} />
-      <div className="mt-10 text-8xl font-bold">
-        FIGURE OUT HOW YOU WANT TO IMPLEMENT DELETING A TYPE ATTRIBUTE
-      </div>
     </div>
   );
 }
