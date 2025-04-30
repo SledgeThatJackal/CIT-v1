@@ -5,7 +5,7 @@ import {
   createContainerImages,
   deleteContainerImage,
   updateContainer,
-  updateImageOrders,
+  updateContainerImageOrders,
 } from "../actions/containers";
 import { columns } from "../data/useTableData";
 
@@ -42,7 +42,7 @@ export default function ContainerDataTable({
       columns={columns}
       updateData={updateContainer}
       addImages={createContainerImages}
-      reorderImages={updateImageOrders}
+      reorderImages={updateContainerImageOrders}
       deleteImage={deleteContainerImage}
     />
   );

@@ -3,11 +3,11 @@ import { Button } from "../button";
 import { cn } from "@/lib/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function TrashButton({ className, ...props }: any) {
+export default function TrashButton({ className, size = "sm", ...props }: any) {
   return (
     <Button
       variant="destructiveOutline"
-      size="sm"
+      size={size}
       className={cn("ms-auto hover:cursor-pointer", className)}
       {...props}
     >

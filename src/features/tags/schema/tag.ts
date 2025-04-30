@@ -12,5 +12,10 @@ export const tagSchema = createTagSchema.extend({
   updatedAt: z.date(),
 });
 
+export const simpleTagSchema = createTagSchema.extend({
+  id: z.string().uuid().min(1, "Required"),
+});
+
 export type TagType = z.infer<typeof tagSchema>;
 export type CreateTagType = z.infer<typeof createTagSchema>;
+export type SimpleTagType = z.infer<typeof simpleTagSchema>;

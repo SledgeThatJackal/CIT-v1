@@ -29,6 +29,13 @@ export const createContainerSchema = z.object({
   containerImages: z.array(z.string()).optional(),
 });
 
+export const simpleContainerSchema = z.object({
+  id: z.string().uuid().min(1, "Required"),
+  name: z.string().min(1, "Required"),
+  barcodeId: z.string().min(1, "Required"),
+});
+
 export type ContainerType = z.infer<typeof containerSchema>;
 export type ParentContainerType = z.infer<typeof parentContainerSchema>;
 export type CreateContainerType = z.infer<typeof createContainerSchema>;
+export type SimpleContainerType = z.infer<typeof simpleContainerSchema>;

@@ -11,7 +11,7 @@ import {
   insertContainer,
   insertContainerImages,
   updateContainer as updateContainerDb,
-  updateImageOrders as updateImageOrdersDb,
+  updateContainerImageOrders as updateContainerImageOrdersDb,
 } from "../db/containers";
 import {
   canCreateContainer,
@@ -68,11 +68,11 @@ export async function updateContainer(
   };
 }
 
-export async function updateImageOrders(imageIds: string[]) {
+export async function updateContainerImageOrders(imageIds: string[]) {
   if (imageIds.length === 0 || !canUpdateContainerImage(await getCurrentUser()))
     return new Error("There was an error updating your image order");
 
-  await updateImageOrdersDb(imageIds);
+  await updateContainerImageOrdersDb(imageIds);
 
   return {
     message: `Successfully reordered your images`,

@@ -10,7 +10,7 @@ import {
   FormMessageAlt,
 } from "@/components/ui/form";
 import { changeToProperCase } from "@/util/formatters";
-import React, { HTMLInputTypeAttribute, ReactNode } from "react";
+import React, { HTMLInputTypeAttribute, ReactNode, useState } from "react";
 import {
   ControllerRenderProps,
   FieldValues,
@@ -31,14 +31,18 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { XIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function GenericForm<T extends FieldValues>({
   form,
   onSubmit,
+  className,
   children,
 }: {
   form: UseFormReturn<T>;
   onSubmit: (values: T) => Promise<void>;
+  className?: string;
   children: ReactNode;
 }) {
   const { isValid, isSubmitting, isDirty } = useFormState({
@@ -49,7 +53,7 @@ export default function GenericForm<T extends FieldValues>({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-6"
+        className={cn("flex flex-col gap-6", className)}
       >
         {children}
         <div className="self-end">
@@ -232,14 +236,18 @@ export function FormSelectField<
           </FormLabel>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full hover:cursor-pointer">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
               <React.Fragment>
                 {options.map((option) => (
-                  <SelectItem key={`option-${option}`} value={`${option}`}>
+                  <SelectItem
+                    key={`option-${option}`}
+                    value={`${option}`}
+                    className="hover:cursor-pointer hover:bg-accent-alternate"
+                  >
                     {typeof option === "string"
                       ? changeToProperCase(option)
                       : `${option}`}
@@ -248,6 +256,91 @@ export function FormSelectField<
               </React.Fragment>
             </SelectContent>
           </Select>
+          {hasMultipleColumns ? <FormMessageAlt /> : <FormMessage />}
+        </FormItem>
+      )}
+    />
+  );
+}
+
+type ObjectType = {
+  id: string;
+  name: string;
+};
+
+export function FormObjectSelectField<
+  T extends FieldValues,
+  S extends ObjectType
+>({
+  form,
+  path,
+  label,
+  options,
+  required = true,
+  hasMultipleColumns = false,
+  displayValue,
+}: {
+  form: UseFormReturn<T>;
+  path: Path<T>;
+  label: string;
+  options: S[] | readonly S[];
+  required?: boolean;
+  hasMultipleColumns?: boolean;
+  displayValue?: keyof S;
+}) {
+  const [key, setKey] = useState(+new Date());
+
+  function handleClick(
+    e: React.MouseEvent<SVGSVGElement, MouseEvent>,
+    field: ControllerRenderProps<T, Path<T>>
+  ) {
+    e.stopPropagation();
+    field.onChange(undefined);
+    setKey(+new Date());
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name={path}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>
+            {required && <RequiredIcon />} {label}
+          </FormLabel>
+          <div className="flex flex-row gap-2 items-center">
+            <Select
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              key={key}
+            >
+              <FormControl>
+                <SelectTrigger className="w-full hover:cursor-pointer">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <React.Fragment>
+                  {options.map((option) => (
+                    <SelectItem
+                      key={`option-${option.id}`}
+                      value={option.id}
+                      className="hover:cursor-pointer hover:bg-accent-alternate"
+                      disabled={option.id === field.value}
+                    >
+                      {displayValue
+                        ? String(option[displayValue])
+                        : option.name}
+                    </SelectItem>
+                  ))}
+                </React.Fragment>
+              </SelectContent>
+            </Select>
+            <XIcon
+              onClick={(e) => handleClick(e, field)}
+              className="hover:cursor-pointer"
+            />
+          </div>
           {hasMultipleColumns ? <FormMessageAlt /> : <FormMessage />}
         </FormItem>
       )}

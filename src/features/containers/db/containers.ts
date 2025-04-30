@@ -88,7 +88,7 @@ export async function updateContainer(
   return updatedContainer;
 }
 
-export async function updateImageOrders(ids: string[]) {
+export async function updateContainerImageOrders(ids: string[]) {
   const containerImages = await Promise.all(
     ids.map((id, index) =>
       db

@@ -24,7 +24,17 @@ export const detailedTypeSchema = typeSchema.extend({
   typeAttributes: z.array(typeAttributeSchema),
 });
 
+export const simpleTypeSchema = createTypeSchema.extend({
+  id: z.string().uuid().min(1, "Required"),
+  typeAttributes: z.array(
+    createTypeAttributeSchema.extend({
+      id: z.string().uuid().min(1, "Required"),
+    })
+  ),
+});
+
 export type CreateTypeType = z.infer<typeof createTypeSchema>;
 export type TypeType = z.infer<typeof typeSchema>;
 export type FormTypeType = z.infer<typeof formTypeSchema>;
 export type DetailedTypeSchema = z.infer<typeof detailedTypeSchema>;
+export type SimpleTypeSchema = z.infer<typeof simpleTypeSchema>;

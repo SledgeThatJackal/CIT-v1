@@ -3,6 +3,10 @@ import {
   revalidateContainerCache,
 } from "@/features/containers/db/cache/containers";
 import {
+  getItemIdTag,
+  revalidateItemCache,
+} from "@/features/items/db/cache/item";
+import {
   getContainerTag,
   getGlobalTag,
   getIdTag,
@@ -57,4 +61,5 @@ export function revalidateItemImageCache(
   revalidateTag(getItemImageIdTag(id));
   revalidateTag(getItemImageTag(itemId));
   revalidateTag(getImageIdTag(imageId));
+  revalidateItemCache(getItemIdTag(itemId));
 }
