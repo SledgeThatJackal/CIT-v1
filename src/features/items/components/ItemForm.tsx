@@ -96,6 +96,8 @@ export default function ItemForm({
         },
   });
 
+  const itemTypeRef = useRef<HTMLButtonElement | null>(null);
+
   const itemAttributeFieldArray = useFieldArray({
     control: form.control,
     name: "itemAttributes",
@@ -109,14 +111,17 @@ export default function ItemForm({
   const types = useTypes();
 
   async function onSubmit(values: CreateItemType) {
-    console.log(values);
-
     const action = item ? updateItem.bind(null, item!.id) : createItem;
+
+    function clearForm() {
+      form.reset();
+      itemTypeRef.current?.click();
+    }
 
     showPromiseToast<{ message: string }>(
       () => action(values),
       `Attempting to ${item ? "update" : "create"} item`,
-      form.reset
+      clearForm
     );
   }
 
@@ -162,6 +167,7 @@ export default function ItemForm({
             label="Item Type"
             options={types}
             required={false}
+            ref={itemTypeRef}
           />
           <ItemAttributeSection
             form={form}

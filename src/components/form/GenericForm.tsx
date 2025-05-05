@@ -280,6 +280,7 @@ export function FormObjectSelectField<
   required = true,
   hasMultipleColumns = false,
   displayValue,
+  ref,
 }: {
   form: UseFormReturn<T>;
   path: Path<T>;
@@ -288,15 +289,16 @@ export function FormObjectSelectField<
   required?: boolean;
   hasMultipleColumns?: boolean;
   displayValue?: keyof S;
+  ref?: React.Ref<HTMLButtonElement> | null;
 }) {
   const [key, setKey] = useState(+new Date());
 
   function handleClick(
-    e: React.MouseEvent<SVGSVGElement, MouseEvent>,
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     field: ControllerRenderProps<T, Path<T>>
   ) {
     e.stopPropagation();
-    field.onChange("");
+    field.onChange(undefined);
 
     setKey(+new Date());
   }
@@ -338,10 +340,14 @@ export function FormObjectSelectField<
                 </React.Fragment>
               </SelectContent>
             </Select>
-            <XIcon
+            <Button
+              variant="outline"
+              className="bg-transparent hover:cursor-pointer"
               onClick={(e) => handleClick(e, field)}
-              className="hover:cursor-pointer"
-            />
+              ref={ref}
+            >
+              <XIcon />
+            </Button>
           </div>
           {hasMultipleColumns ? <FormMessageAlt /> : <FormMessage />}
         </FormItem>
