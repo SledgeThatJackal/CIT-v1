@@ -20,7 +20,10 @@ export default function ActionsMenu({
     <div className="flex justify-center items-center">
       <DropdownMenu>
         <DropdownMenuTrigger
-          className={cn("hover:bg-accent-alternate rounded", className)}
+          className={cn(
+            "hover:bg-accent-alternate rounded hover:cursor-pointer",
+            className
+          )}
         >
           {isVertical ? <EllipsisVertical /> : <Ellipsis />}
         </DropdownMenuTrigger>
