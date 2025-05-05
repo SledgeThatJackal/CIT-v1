@@ -1,20 +1,20 @@
+import { PageHeader } from "@/components/PageHeader";
 import { db } from "@/drizzle/db";
 import {
   ContainerImageTable,
   ContainerTable,
   ImageTable,
 } from "@/drizzle/schema";
+import ContainerDataTable from "@/features/containers/components/ContainerDataTable";
 import CreateContainerButton from "@/features/containers/components/CreateContainerButton";
+import { ContainerContextProvider } from "@/features/containers/data/ContainerContextProvider";
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
 import { ContainerType } from "@/features/containers/schema/containers";
 import { getImageGlobalTag } from "@/features/images/db/cache/images";
-import { ImageProvider } from "@/features/images/hooks/useImages";
 import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
-import ContainerDataTable from "@/features/containers/components/ContainerDataTable";
-import { PageHeader } from "@/components/PageHeader";
 
 export default async function ContainerPage({
   searchParams,
@@ -29,12 +29,12 @@ export default async function ContainerPage({
   return (
     <div className="container mx-auto py-10">
       <Suspense fallback={<div className="text-xl">No containers found</div>}>
-        <PageHeader title="Containers">
-          <CreateContainerButton parentContainers={containerData} />
-        </PageHeader>
-        <ImageProvider images={images}>
+        <ContainerContextProvider images={images} containers={containerData}>
+          <PageHeader title="Containers">
+            <CreateContainerButton />
+          </PageHeader>
           <ContainerDataTable containers={containerData} />
-        </ImageProvider>
+        </ContainerContextProvider>
       </Suspense>
     </div>
   );

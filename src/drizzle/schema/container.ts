@@ -25,7 +25,18 @@ export const ContainerTable = pgTable(
   ]
 );
 
-export const ContainerRelationships = relations(ContainerTable, ({ many }) => ({
-  containerItems: many(ContainerItemTable),
-  containerImages: many(ContainerImageTable),
-}));
+export const ContainerRelationships = relations(
+  ContainerTable,
+  ({ one, many }) => ({
+    containerItems: many(ContainerItemTable),
+    containerImages: many(ContainerImageTable),
+    parent: one(ContainerTable, {
+      fields: [ContainerTable.parentId],
+      references: [ContainerTable.id],
+      relationName: "parent",
+    }),
+    children: many(ContainerTable, {
+      relationName: "parent",
+    }),
+  })
+);

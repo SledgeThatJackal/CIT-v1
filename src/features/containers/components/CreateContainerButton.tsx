@@ -2,14 +2,9 @@
 
 import CreateFormButton from "@/components/form/CreateFormButton";
 import React from "react";
-import { ContainerType } from "../schema/containers";
 import ContainerForm from "./ContainerForm";
 
-export default function CreateContainerButton({
-  parentContainers,
-}: {
-  parentContainers: ContainerType[];
-}) {
+export default function CreateContainerButton() {
   return (
     <React.Fragment>
       <CreateFormButton
@@ -17,7 +12,7 @@ export default function CreateContainerButton({
         buttonLabel="New Container"
         className="min-w-[50vh]"
       >
-        <ContainerForm parentContainers={parentContainers} />
+        <ContainerForm />
       </CreateFormButton>
     </React.Fragment>
   );

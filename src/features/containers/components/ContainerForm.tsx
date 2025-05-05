@@ -22,16 +22,11 @@ import {
   createContainerSchema,
   CreateContainerType,
 } from "../schema/containers";
+import { useContainers } from "../hooks/useContainers";
 
 export default function ContainerForm({
-  parentContainers,
   container,
 }: {
-  parentContainers: {
-    id: string;
-    name: string;
-    barcodeId: string;
-  }[];
   container?: {
     id: string;
     name: string;
@@ -39,19 +34,36 @@ export default function ContainerForm({
     barcodeId: string;
     parentId?: string;
     isArea: boolean;
-    containerImages?: string[];
+    containerImages?: {
+      id: string;
+      image: {
+        id: string;
+        fileName: string;
+      };
+      imageOrder: number;
+    }[];
   };
 }) {
   const form = useForm<CreateContainerType>({
     resolver: zodResolver(createContainerSchema),
-    defaultValues: container ?? {
-      name: "",
-      description: "",
-      barcodeId: "",
-      isArea: false,
-      containerImages: [],
-    },
+    defaultValues: container
+      ? {
+          ...container,
+          containerImages:
+            container.containerImages?.map(
+              (containerImage) => containerImage.image.id
+            ) ?? [],
+        }
+      : {
+          name: "",
+          description: "",
+          barcodeId: "",
+          isArea: false,
+          containerImages: [],
+        },
   });
+
+  const parentContainers = useContainers();
 
   async function onSubmit(values: CreateContainerType) {
     const action = container
@@ -150,7 +162,6 @@ export default function ContainerForm({
                 onSelectedImageChange={field.onChange}
               />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
