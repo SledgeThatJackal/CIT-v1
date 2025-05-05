@@ -12,7 +12,7 @@ export function TypeProvider({
   types: SimpleTypeSchema[];
   children: ReactNode;
 }) {
-  return <TypeContext.Provider value={types}>{children}</TypeContext.Provider>;
+  return <TypeContext value={types}>{children}</TypeContext>;
 }
 
 export const useTypes = () => useContext(TypeContext);

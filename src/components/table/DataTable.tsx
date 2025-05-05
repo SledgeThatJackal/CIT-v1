@@ -87,7 +87,7 @@ export default function DataTable<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headers) => (
-            <TableRow key={headers.id} className="h-15">
+            <TableRow key={headers.id} className="h-15.5">
               {headers.headers.map((header) => {
                 return <CustomHeader key={header.id} header={header} />;
               })}
@@ -152,8 +152,8 @@ function CustomHeader<TData>({ header }: { header: Header<TData, unknown> }) {
           >
             {flexRender(header.column.columnDef.header, header.getContext())}
             {{
-              asc: <ChevronUp />,
-              desc: <ChevronDown />,
+              asc: <ChevronUp size="16" />,
+              desc: <ChevronDown size="16" />,
             }[header.column.getIsSorted() as string] ?? null}
           </div>
           {header.column.getCanFilter() ? (

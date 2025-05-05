@@ -9,10 +9,10 @@ export const ItemTagTable = pgTable(
   {
     itemId: uuid()
       .notNull()
-      .references(() => ItemTable.id),
+      .references(() => ItemTable.id, { onDelete: "cascade" }),
     tagId: uuid()
       .notNull()
-      .references(() => TagTable.id),
+      .references(() => TagTable.id, { onDelete: "cascade" }),
     createdAt,
     updatedAt,
   },

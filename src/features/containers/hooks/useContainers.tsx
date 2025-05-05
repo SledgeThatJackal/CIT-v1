@@ -12,11 +12,7 @@ export function ContainerProvider({
   containers: SimpleContainerType[];
   children: ReactNode;
 }) {
-  return (
-    <ContainerContext.Provider value={containers}>
-      {children}
-    </ContainerContext.Provider>
-  );
+  return <ContainerContext value={containers}>{children}</ContainerContext>;
 }
 
 export const useContainers = () => useContext(ContainerContext);

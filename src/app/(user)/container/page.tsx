@@ -40,7 +40,7 @@ export default async function ContainerPage({
   );
 }
 
-async function getContainers() {
+export async function getContainers() {
   "use cache";
 
   cacheTag(getContainerGlobalTag());

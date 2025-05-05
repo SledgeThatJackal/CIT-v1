@@ -6,7 +6,9 @@ import GenericForm, {
   GenericFormField,
 } from "@/components/form/GenericForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ImageSelector from "@/components/ui/custom/image-selector";
 import { MultiSelect } from "@/components/ui/custom/multi-select";
+import TrashButton from "@/components/ui/custom/trash-button";
 import {
   FormControl,
   FormDescription,
@@ -15,7 +17,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { TypeAttributeDataType } from "@/drizzle/schema";
-import { useContainers } from "@/features/containers/data/useContainers";
+import { useContainers } from "@/features/containers/hooks/useContainers";
 import Tag from "@/features/tags/components/Tag";
 import { useTags } from "@/features/tags/hooks/useTags";
 import { useTypes } from "@/features/types/hooks/useTypes";
@@ -33,8 +35,6 @@ import {
 } from "react-hook-form";
 import { createItem, updateItem } from "../actions/item";
 import { createItemSchema, CreateItemType } from "../schema/item";
-import TrashButton from "@/components/ui/custom/trash-button";
-import ImageSelector from "@/components/ui/custom/image-selector";
 
 export default function ItemForm({
   item,
@@ -89,6 +89,7 @@ export default function ItemForm({
           description: "",
           externalUrl: "",
           tags: [],
+          itemTypeId: undefined,
           itemAttributes: [],
           containerItems: [],
           itemImages: [],
@@ -108,12 +109,12 @@ export default function ItemForm({
   const types = useTypes();
 
   async function onSubmit(values: CreateItemType) {
+    console.log(values);
+
     const action = item ? updateItem.bind(null, item!.id) : createItem;
 
-    const promise = () => action(values);
-
     showPromiseToast<{ message: string }>(
-      promise,
+      () => action(values),
       `Attempting to ${item ? "update" : "create"} item`,
       form.reset
     );
@@ -123,7 +124,7 @@ export default function ItemForm({
     <GenericForm
       form={form}
       onSubmit={onSubmit}
-      className="overflow-y-auto max-h-[75vh] p-4"
+      className="overflow-y-auto max-h-[65vh] p-4"
     >
       <GenericFormField form={form} path="name" label="Name" />
       <FormTextareaField form={form} path="description" label="Description" />
@@ -184,6 +185,8 @@ function ItemAttributeSection({
     name: "itemTypeId",
   });
 
+  const prevTypeId = useRef<string>(typeWatch);
+
   const referenceData = useRef<
     Record<
       string,
@@ -204,10 +207,9 @@ function ItemAttributeSection({
 
     if (attributeData == null) return;
 
-    replace([]);
     referenceData.current = {};
 
-    attributeData.forEach((attribute, index) => {
+    const items = attributeData.map((attribute, index) => {
       const dataType = attribute.dataType;
 
       const path = dataType === "string" ? "text" : "numeric";
@@ -217,11 +219,16 @@ function ItemAttributeSection({
         title: attribute.title,
       };
 
-      append({
+      return {
         typeAttributeId: attribute.id,
         [`${path}Value`]: attribute[`${path}DefaultValue`],
-      });
+      };
     });
+
+    if (prevTypeId.current !== typeWatch) {
+      replace(items);
+      prevTypeId.current = typeWatch;
+    }
   }, [append, replace, typeWatch, types]);
 
   return (

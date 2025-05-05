@@ -12,9 +12,7 @@ export function ImageProvider({
   images: ImageType[];
   children: ReactNode;
 }) {
-  return (
-    <ImageContext.Provider value={images}>{children}</ImageContext.Provider>
-  );
+  return <ImageContext value={images}>{children}</ImageContext>;
 }
 
 export const useImages = () => useContext(ImageContext);

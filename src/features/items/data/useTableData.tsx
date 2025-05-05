@@ -22,7 +22,16 @@ const columns: ColumnDef<ItemType>[] = [
   {
     accessorKey: "externalUrl",
     header: "URL",
-    cell: ({ getValue }) => <Link href={`${getValue()}`}>Link</Link>,
+    cell: ({ getValue }) => {
+      const value = getValue();
+      if (!value) return null;
+
+      return (
+        <Link href={`${value}`} className="flex justify-center">
+          Link
+        </Link>
+      );
+    },
     enableSorting: false,
     enableColumnFilter: false,
   },
@@ -37,12 +46,13 @@ const columns: ColumnDef<ItemType>[] = [
     cell: EditCell,
   },
   {
-    accessorKey: "",
-    header: "Tag(s)",
+    accessorKey: "tags",
+    header: () => <div className="text-start">Tag(s)</div>,
     cell: TagCell,
+    enableSorting: false,
   },
   {
-    accessorKey: "",
+    accessorKey: "itemType",
     header: "Type",
     cell: TypeCell,
   },

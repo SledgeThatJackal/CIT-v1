@@ -113,11 +113,13 @@ export default function ImageSelector({
       {selectedImages.length > 0 && (
         <div className="p-0.5">
           <SortableImageList
-            images={selectedImages.map((image) => {
-              return options.find((option) => {
-                return option.id === image;
-              })!;
-            })}
+            images={selectedImages
+              .map((image) => {
+                return options.find((option) => {
+                  return option.id === image;
+                });
+              })
+              .filter((image) => image !== undefined)}
             handleOrderChange={onSelectedImageChange}
             deleteProps={{
               handleClick: (id: string) =>

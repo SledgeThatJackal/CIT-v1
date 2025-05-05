@@ -26,27 +26,34 @@ export default function ActionsContainerCell<S>({
     <React.Fragment>
       <ActionsMenu>
         <DropdownMenuItem
-          onSelect={() => redirect(`/container/${row.original.id}`)}
+          className="cursor-pointer"
+          onSelect={() => redirect(`/container/detail/${row.original.id}`)}
         >
           Details
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => setComponent(<DuplicateContainer row={row} />)}
         >
           Duplicate Container
         </DropdownMenuItem>
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => setComponent(<CreateItem row={row} />)}
         >
           Create Item
         </DropdownMenuItem>
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => setComponent(<AddDescendant row={row} />)}
         >
           Add Descendant
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => alertButton.current?.click()}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => alertButton.current?.click()}
+        >
           Delete Container
         </DropdownMenuItem>
       </ActionsMenu>

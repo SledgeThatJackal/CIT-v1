@@ -6,7 +6,7 @@ import {
   ItemTable,
   ItemTagTable,
 } from "@/drizzle/schema";
-import { eq, max } from "drizzle-orm";
+import { and, eq, max, notExists, sql } from "drizzle-orm";
 import { revalidateItemCache } from "./cache/item";
 import { revalidateItemImageCache } from "@/features/images/db/cache/images";
 
@@ -156,15 +156,186 @@ export async function insertItemImages(id: string, imageIds: string[]) {
 
 export async function updateItem(
   id: string,
-  data: Partial<typeof ItemTable.$inferInsert>
+  data: Partial<typeof ItemTable.$inferInsert> & {
+    tags?: string[];
+    itemAttributes?: {
+      typeAttributeId: string;
+      textValue?: string;
+      numericValue?: number;
+    }[];
+    itemImages?: string[];
+    containerItems?: {
+      containerId: string;
+      quantity: number;
+    }[];
+  }
 ) {
-  const [updatedItem] = await db
-    .update(ItemTable)
-    .set(data)
-    .where(eq(ItemTable.id, id))
-    .returning();
+  const updatedItem = await db.transaction(async (trx) => {
+    const [updatedItem] = await trx
+      .update(ItemTable)
+      .set(data)
+      .where(eq(ItemTable.id, id))
+      .returning();
 
-  if (updatedItem == null) throw new Error("Failed to update item");
+    if (updatedItem == null) throw new Error("Failed to update item");
+
+    if (data.tags && data.tags.length > 0) {
+      // Upsert
+      const tags = await trx
+        .insert(ItemTagTable)
+        .values(
+          data.tags.map((tag) => ({
+            itemId: updatedItem.id,
+            tagId: tag,
+          }))
+        )
+        .onConflictDoNothing()
+        .returning();
+
+      // Remove
+      await trx.delete(ItemTagTable).where(
+        and(
+          eq(ItemTagTable.itemId, updatedItem.id),
+          notExists(
+            db
+              .select()
+              .from(
+                sql`(values ${sql.join(
+                  data.tags.map((tag) => sql`(${tag}::uuid)`),
+                  sql`,`
+                )}) as new_tags(tag_id)`
+              )
+              .where(sql`new_tags.tag_id = ${ItemTagTable.tagId}`)
+          )
+        )
+      );
+
+      if (tags == null) {
+        trx.rollback();
+        throw new Error("Failed to update tags");
+      }
+    }
+
+    if (data.itemAttributes && data.itemAttributes.length > 0) {
+      // Upsert
+      const itemAttributes = await trx
+        .insert(ItemAttributeTable)
+        .values(
+          data.itemAttributes.map((itemAttribute) => ({
+            typeAttributeId: itemAttribute.typeAttributeId,
+            itemId: updatedItem.id,
+            textValue: itemAttribute.textValue ?? null,
+            numericValue: itemAttribute.numericValue ?? null,
+          }))
+        )
+        .onConflictDoUpdate({
+          target: [
+            ItemAttributeTable.itemId,
+            ItemAttributeTable.typeAttributeId,
+          ],
+          set: {
+            textValue: sql.raw(`excluded."textValue"`),
+            numericValue: sql.raw(`excluded."numericValue"`),
+          },
+        })
+        .returning();
+
+      // There's no need to remove anything from item attributes because if the type is removed,
+      // the item attributes will automatically be removed as well.
+
+      if (itemAttributes == null) {
+        trx.rollback();
+        throw new Error("Failed to create attributes");
+      }
+    }
+
+    if (data.containerItems && data.containerItems.length > 0) {
+      // Upsert
+      const containerItems = await trx
+        .insert(ContainerItemTable)
+        .values(
+          data.containerItems.map((containerItem) => ({
+            containerId: containerItem.containerId,
+            itemId: updatedItem.id,
+            quantity: containerItem.quantity,
+          }))
+        )
+        .onConflictDoUpdate({
+          target: [ContainerItemTable.itemId, ContainerItemTable.containerId],
+          set: { quantity: sql`excluded.quantity` },
+        })
+        .returning();
+
+      // Remove
+      await trx.delete(ContainerItemTable).where(
+        and(
+          eq(ContainerItemTable.itemId, updatedItem.id),
+          notExists(
+            db
+              .select()
+              .from(
+                sql`(values ${sql.join(
+                  data.containerItems.map(
+                    (ci) => sql`(${ci.containerId}::uuid)`
+                  ),
+                  sql`,`
+                )}) as new_containeritems(container_id)`
+              )
+              .where(
+                sql`new_containeritems.container_id = ${ContainerItemTable.containerId}`
+              )
+          )
+        )
+      );
+
+      if (containerItems == null) {
+        trx.rollback();
+        throw new Error("Failed to put items into their containers");
+      }
+    }
+
+    if (data.itemImages && data.itemImages.length > 0) {
+      // Upsert
+      const itemImages = await trx
+        .insert(ItemImageTable)
+        .values(
+          data.itemImages.map((imageId, index) => ({
+            imageId: imageId,
+            itemId: updatedItem.id,
+            imageOrder: index,
+          }))
+        )
+        .onConflictDoNothing({
+          target: [ItemImageTable.itemId, ItemImageTable.imageId],
+        })
+        .returning();
+
+      // Remove
+      await trx.delete(ItemImageTable).where(
+        and(
+          eq(ItemImageTable.itemId, updatedItem.id),
+          notExists(
+            db
+              .select()
+              .from(
+                sql`(values ${sql.join(
+                  data.itemImages.map((itemImage) => sql`(${itemImage}::uuid)`),
+                  sql`,`
+                )}) as new_itemimages(image_id)`
+              )
+              .where(sql`new_itemimages.image_id = ${ItemImageTable.imageId}`)
+          )
+        )
+      );
+
+      if (itemImages == null) {
+        trx.rollback();
+        throw new Error("Failed to create images");
+      }
+    }
+
+    return updatedItem;
+  });
 
   revalidateItemCache(updatedItem.id);
 

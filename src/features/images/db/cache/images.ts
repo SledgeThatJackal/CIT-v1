@@ -1,11 +1,5 @@
-import {
-  getContainerIdTag,
-  revalidateContainerCache,
-} from "@/features/containers/db/cache/containers";
-import {
-  getItemIdTag,
-  revalidateItemCache,
-} from "@/features/items/db/cache/item";
+import { revalidateContainerCache } from "@/features/containers/db/cache/containers";
+import { revalidateItemCache } from "@/features/items/db/cache/item";
 import {
   getContainerTag,
   getGlobalTag,
@@ -50,7 +44,7 @@ export function revalidateContainerImageCache(
   revalidateTag(getContainerImageIdTag(id));
   revalidateTag(getContainerImageTag(containerId));
   revalidateTag(getImageIdTag(imageId));
-  revalidateContainerCache(getContainerIdTag(containerId));
+  revalidateContainerCache(containerId);
 }
 
 export function revalidateItemImageCache(
@@ -61,5 +55,5 @@ export function revalidateItemImageCache(
   revalidateTag(getItemImageIdTag(id));
   revalidateTag(getItemImageTag(itemId));
   revalidateTag(getImageIdTag(imageId));
-  revalidateItemCache(getItemIdTag(itemId));
+  revalidateItemCache(itemId);
 }

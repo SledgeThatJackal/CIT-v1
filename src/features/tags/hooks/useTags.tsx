@@ -12,7 +12,7 @@ export function TagProvider({
   tags: SimpleTagType[];
   children: ReactNode;
 }) {
-  return <TagContext.Provider value={tags}>{children}</TagContext.Provider>;
+  return <TagContext value={tags}>{children}</TagContext>;
 }
 
 export const useTags = () => useContext(TagContext);

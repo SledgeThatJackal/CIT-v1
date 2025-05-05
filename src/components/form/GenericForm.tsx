@@ -61,6 +61,7 @@ export default function GenericForm<T extends FieldValues>({
             disabled={isSubmitting || !isValid || !isDirty}
             variant="secondary"
             type="submit"
+            className="hover:cursor-pointer"
           >
             Save
           </Button>
@@ -295,7 +296,8 @@ export function FormObjectSelectField<
     field: ControllerRenderProps<T, Path<T>>
   ) {
     e.stopPropagation();
-    field.onChange(undefined);
+    field.onChange("");
+
     setKey(+new Date());
   }
 

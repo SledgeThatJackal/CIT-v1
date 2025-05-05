@@ -1,4 +1,4 @@
-import { ContainerProvider } from "@/features/containers/data/useContainers";
+import { ContainerProvider } from "@/features/containers/hooks/useContainers";
 import { SimpleContainerType } from "@/features/containers/schema/containers";
 import { ImageProvider } from "@/features/images/hooks/useImages";
 import { ImageType } from "@/features/images/schema/images";

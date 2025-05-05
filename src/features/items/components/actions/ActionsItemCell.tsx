@@ -1,19 +1,20 @@
 "use client";
 
+import { ActionAlertDialog } from "@/components/ActionAlertDialog";
 import { ActionDialog } from "@/components/ActionDialog";
 import ActionsMenu from "@/components/renderers/action/ActionsMenu";
+import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import React, { ReactNode, useRef, useState } from "react";
-import DuplicateItem from "./DuplicateItem";
-import { ItemType } from "../../schema/item";
 import { CellContext } from "@tanstack/react-table";
-import EditContainers from "./EditContainers";
-import { ActionAlertDialog } from "@/components/ActionAlertDialog";
-import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { redirect } from "next/navigation";
+import React, { ReactNode, useRef, useState } from "react";
 import { deleteItem } from "../../actions/item";
+import { ItemType } from "../../schema/item";
+import DuplicateItem from "./DuplicateItem";
+import EditContainers from "./EditContainers";
 
 export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
   const [component, setComponent] = useState<ReactNode>(undefined);
@@ -22,19 +23,29 @@ export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
   return (
     <React.Fragment>
       <ActionsMenu>
-        <DropdownMenuItem>Details</DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => redirect(`/item/detail/${row.original.id}`)}
+          className="cursor-pointer"
+        >
+          Details
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => setComponent(<DuplicateItem row={row} />)}
         >
           Duplicate Item
         </DropdownMenuItem>
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => setComponent(<EditContainers row={row} />)}
         >
           Edit Containers
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => alertButton.current?.click()}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => alertButton.current?.click()}
+        >
           Delete Item
         </DropdownMenuItem>
       </ActionsMenu>

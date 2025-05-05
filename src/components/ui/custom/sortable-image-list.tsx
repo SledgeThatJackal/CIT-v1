@@ -6,11 +6,11 @@ type DeleteProps = {
 };
 
 export function SortableImageList({
-  images,
+  images = [],
   deleteProps,
   handleOrderChange,
 }: {
-  images: { id: string; fileName: string }[];
+  images?: { id: string; fileName: string }[];
   handleOrderChange: (newOrder: string[]) => void;
   deleteProps?: DeleteProps;
 }) {

@@ -13,5 +13,10 @@ export const itemAttributeSchema = createItemAttributeSchema.extend({
   updatedAt: z.date(),
 });
 
+export const simpleItemAttributeSchema = createItemAttributeSchema.extend({
+  id: z.string().uuid().min(1, "Required"),
+});
+
 export type CreateItemAttributeType = z.infer<typeof createItemAttributeSchema>;
 export type ItemAttributeType = z.infer<typeof itemAttributeSchema>;
+export type SimpleItemAttributeType = z.infer<typeof simpleItemAttributeSchema>;

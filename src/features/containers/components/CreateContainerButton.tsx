@@ -12,7 +12,11 @@ export default function CreateContainerButton({
 }) {
   return (
     <React.Fragment>
-      <CreateFormButton title="Creating Container" buttonLabel="New Container">
+      <CreateFormButton
+        title="Creating Container"
+        buttonLabel="New Container"
+        className="min-w-[50vh]"
+      >
         <ContainerForm parentContainers={parentContainers} />
       </CreateFormButton>
     </React.Fragment>

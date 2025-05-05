@@ -22,8 +22,8 @@ import { SimpleTypeSchema } from "@/features/types/schema/type";
 import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
-import { getImages } from "../container/page";
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
+import { getImages } from "../../container/page";
 
 export default async function Item() {
   const itemData = await getItems();
@@ -165,7 +165,7 @@ async function getItems() {
   return Array.from(items.values());
 }
 
-async function getTags() {
+export async function getTags() {
   "use cache";
 
   cacheTag(getTagGlobalTag());
@@ -179,7 +179,7 @@ async function getTags() {
   });
 }
 
-async function getTypes() {
+export async function getTypes() {
   "use cache";
 
   cacheTag();
@@ -224,7 +224,7 @@ async function getTypes() {
   return Array.from(types.values());
 }
 
-async function getContainers() {
+export async function getContainers() {
   "use cache";
 
   cacheTag(getContainerGlobalTag());
