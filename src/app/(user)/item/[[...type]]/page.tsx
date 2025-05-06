@@ -3,26 +3,21 @@ import { db } from "@/drizzle/db";
 import {
   ContainerItemTable,
   ContainerTable,
-  ImageTable,
-  ItemAttributeTable,
   ItemImageTable,
-  ItemTable,
-  ItemTagTable,
   ItemTypeTable,
   TagTable,
   TypeAttributeTable,
 } from "@/drizzle/schema";
+import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
 import CreateItemButton from "@/features/items/components/CreateItemButton";
 import ItemDataTable from "@/features/items/components/ItemDataTable";
 import { ItemContextProvider } from "@/features/items/data/ItemContextProvider";
 import { getItemGlobalTag } from "@/features/items/db/cache/item";
-import { ItemType } from "@/features/items/schema/item";
 import { getTagGlobalTag } from "@/features/tags/db/cache/tag";
 import { SimpleTypeSchema } from "@/features/types/schema/type";
 import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
-import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
 import { getImages } from "../../container/page";
 
 export default async function Item() {
@@ -56,113 +51,106 @@ async function getItems() {
 
   cacheTag(getItemGlobalTag());
 
-  const rows = db
-    .select({
-      id: ItemTable.id,
-      name: ItemTable.name,
-      description: ItemTable.description,
-      externalURL: ItemTable.externalUrl,
-      createdAt: ItemTable.createdAt,
-      updatedAt: ItemTable.updatedAt,
-      tag: {
-        id: TagTable.id,
-        name: TagTable.name,
-        description: TagTable.description,
-        color: TagTable.color,
-      },
-      type: {
-        id: ItemTypeTable.id,
-        name: ItemTypeTable.name,
-      },
-      itemAttribute: {
-        id: ItemAttributeTable.id,
-        typeAttributeId: ItemAttributeTable.typeAttributeId,
-        textValue: ItemAttributeTable.textValue,
-        numericValue: ItemAttributeTable.numericValue,
-      },
-      containerItem: {
-        id: ContainerItemTable.id,
-        containerId: ContainerItemTable.containerId,
-        quantity: ContainerItemTable.quantity,
-      },
-      itemImage: {
-        id: ItemImageTable.id,
-        imageId: ImageTable.id,
-        fileName: ImageTable.fileName,
-        imageOrder: ItemImageTable.imageOrder,
-      },
-    })
-    .from(ItemTable)
-    .leftJoin(ItemTagTable, eq(ItemTable.id, ItemTagTable.itemId))
-    .leftJoin(TagTable, eq(ItemTagTable.tagId, TagTable.id))
-    .leftJoin(ItemTypeTable, eq(ItemTable.itemTypeId, ItemTypeTable.id))
-    .leftJoin(ItemAttributeTable, eq(ItemTable.id, ItemAttributeTable.itemId))
-    .leftJoin(ContainerItemTable, eq(ItemTable.id, ContainerItemTable.itemId))
-    .leftJoin(ItemImageTable, eq(ItemTable.id, ItemImageTable.itemId))
-    .leftJoin(ImageTable, eq(ItemImageTable.imageId, ImageTable.id))
-    .orderBy(asc(ItemTable.name));
-
-  const items = new Map<string, ItemType>();
-
-  (await rows).forEach((row) => {
-    if (!items.has(row.id)) {
-      items.set(row.id, {
-        id: row.id,
-        name: row.name,
-        description: row.description ?? "",
-        externalUrl: row.externalURL ?? "",
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        tags: [],
-        itemType: {
-          id: row.type?.id ?? "",
-          name: row.type?.name ?? "",
+  const rows = await db.query.ItemTable.findMany({
+    with: {
+      containerItems: {
+        orderBy: asc(ContainerItemTable.quantity),
+        columns: {
+          id: true,
+          containerId: true,
+          quantity: true,
         },
-        itemAttributes: [],
-        itemImages: [],
-        containerItems: [],
-      });
-    }
-
-    const item = items.get(row.id);
-
-    if (row.tag?.id) {
-      item?.tags?.push({
-        id: row.tag.id,
-        name: row.tag.name,
-        description: row.tag.description ?? "",
-        color: row.tag.color,
-      });
-    }
-
-    if (row.itemAttribute?.id) {
-      item?.itemAttributes?.push({
-        id: row.itemAttribute.id,
-        typeAttributeId: row.itemAttribute.typeAttributeId,
-        textValue: row.itemAttribute.textValue ?? "",
-        numericValue: row.itemAttribute.numericValue ?? -1,
-      });
-    }
-
-    if (row.containerItem?.id) {
-      item?.containerItems?.push({
-        ...row.containerItem,
-      });
-    }
-
-    if (row.itemImage.id) {
-      item?.itemImages?.push({
-        id: row.itemImage.id,
-        imageOrder: row.itemImage.imageOrder ?? 0,
-        image: {
-          id: row.itemImage.imageId ?? "",
-          fileName: row.itemImage.fileName ?? "",
+        with: {
+          container: {
+            columns: {
+              name: true,
+              barcodeId: true,
+            },
+          },
         },
-      });
-    }
+      },
+      itemType: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+      itemAttributes: {
+        columns: {
+          id: true,
+          typeAttributeId: true,
+          textValue: true,
+          numericValue: true,
+        },
+        with: {
+          typeAttribute: {
+            columns: {
+              displayOrder: true,
+              title: true,
+              dataType: true,
+            },
+          },
+        },
+      },
+      itemImages: {
+        orderBy: asc(ItemImageTable.imageOrder),
+        columns: {
+          id: true,
+          imageOrder: true,
+        },
+        with: {
+          image: {
+            columns: {
+              id: true,
+              fileName: true,
+            },
+          },
+        },
+      },
+      itemTags: {
+        columns: {
+          tagId: true,
+        },
+        with: {
+          tag: {
+            columns: {
+              createdAt: false,
+              updatedAt: false,
+            },
+          },
+        },
+      },
+    },
   });
 
-  return Array.from(items.values());
+  return rows.map((row) => {
+    return {
+      ...row,
+      description: row.description ?? "",
+      externalUrl: row.externalUrl ?? "",
+      createdAt: row.createdAt.toLocaleString(),
+      updatedAt: row.updatedAt.toLocaleString(),
+      tags: row.itemTags.map((itemTag) => {
+        return { ...itemTag.tag, description: itemTag.tag.description ?? "" };
+      }),
+      itemType: { id: row.itemType?.id ?? "", name: row.itemType?.name ?? "" },
+      itemAttributes: row.itemAttributes.map((itemAttribute) => {
+        return {
+          ...itemAttribute,
+          textValue: itemAttribute.textValue ?? undefined,
+          numericValue: itemAttribute.numericValue ?? undefined,
+        };
+      }),
+      itemImages: row.itemImages
+        .filter((image) => image)
+        .map((itemImage) => {
+          return {
+            ...itemImage,
+            imageOrder: itemImage.imageOrder ?? 0,
+          };
+        }),
+    };
+  });
 }
 
 export async function getTags() {
@@ -170,12 +158,16 @@ export async function getTags() {
 
   cacheTag(getTagGlobalTag());
 
-  return await db.query.TagTable.findMany({
+  const tags = await db.query.TagTable.findMany({
     columns: {
       updatedAt: false,
       createdAt: false,
     },
     orderBy: TagTable.name,
+  });
+
+  return tags.map((tag) => {
+    return { ...tag, description: tag.description ?? "" };
   });
 }
 
@@ -201,7 +193,8 @@ export async function getTypes() {
     .leftJoin(
       TypeAttributeTable,
       eq(ItemTypeTable.id, TypeAttributeTable.itemTypeId)
-    );
+    )
+    .orderBy(ItemTypeTable.name);
 
   const types = new Map<string, SimpleTypeSchema>();
 

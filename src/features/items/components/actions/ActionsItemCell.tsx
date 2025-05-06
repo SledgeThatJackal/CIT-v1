@@ -15,6 +15,7 @@ import { deleteItem } from "../../actions/item";
 import { ItemType } from "../../schema/item";
 import DuplicateItem from "./DuplicateItem";
 import EditContainers from "./EditContainers";
+import ItemForm from "../ItemForm";
 
 export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
   const [component, setComponent] = useState<ReactNode>(undefined);
@@ -38,10 +39,17 @@ export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
+          onSelect={() => setComponent(<ItemForm item={row.original} />)}
+        >
+          Edit Item
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => setComponent(<EditContainers row={row} />)}
         >
           Edit Containers
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => alertButton.current?.click()}

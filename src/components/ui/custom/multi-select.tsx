@@ -24,6 +24,7 @@ export function MultiSelect<Option>({
   searchPlaceholder,
   noSearchResultsMessage = "No Results",
   buttonClassName,
+  onBlur,
 }: {
   options: Option[];
   getValue: (option: Option) => string;
@@ -34,11 +35,18 @@ export function MultiSelect<Option>({
   searchPlaceholder?: string;
   noSearchResultsMessage?: string;
   buttonClassName?: string;
+  onBlur?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
 
+  function handleOpenChange(open: boolean) {
+    setOpen(open);
+
+    if (!open) onBlur?.();
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

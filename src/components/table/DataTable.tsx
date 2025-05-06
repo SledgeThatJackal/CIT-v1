@@ -45,7 +45,9 @@ export default function DataTable<TData, TValue>({
   reorderImages,
   deleteImage,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "name", desc: false },
+  ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [bodyKey, setBodyKey] = useState(0);
 

@@ -20,7 +20,7 @@ export default function ReadCell<T extends string | number | undefined>({
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger className={cn("w-full")}>
+        <TooltipTrigger className={cn(!value && "w-full")}>
           <div
             className={cn(!value && "h-5", className ? className : "text-left")}
             onDoubleClick={func}

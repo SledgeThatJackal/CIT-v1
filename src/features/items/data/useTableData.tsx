@@ -1,13 +1,13 @@
 "use client";
 
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { ItemType } from "../schema/item";
 import ImageCell from "@/components/renderers/ImageCell";
 import EditCell from "@/components/renderers/EditCell";
 import ActionsItemCell from "../components/actions/ActionsItemCell";
 import Link from "next/link";
 import TagCell from "../components/renderers/TagCell";
 import TypeCell from "../components/renderers/TypeCell";
+import { ItemType } from "../schema/item";
 
 const columnHelper = createColumnHelper<ItemType>();
 

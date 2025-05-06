@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const createTagSchema = z.object({
   name: z.string().min(1, "Required"),
-  description: z.string().optional().nullable(),
+  description: z.string().optional(),
   color: z.string().min(7).max(7),
 });
 

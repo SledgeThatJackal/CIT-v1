@@ -5,10 +5,12 @@ import {
   ItemImageTable,
   ItemTable,
   ItemTagTable,
+  TypeAttributeTable,
 } from "@/drizzle/schema";
 import { and, eq, max, notExists, sql } from "drizzle-orm";
 import { revalidateItemCache } from "./cache/item";
 import { revalidateItemImageCache } from "@/features/images/db/cache/images";
+import { revalidateTagCache } from "@/features/tags/db/cache/tag";
 
 export async function insertItem(
   data: typeof ItemTable.$inferInsert & {
@@ -360,6 +362,95 @@ export async function updateItemImageOrders(ids: string[]) {
   itemImages.flat().forEach(({ id, itemId, imageId }) => {
     revalidateItemImageCache(id, itemId, imageId);
   });
+}
+
+export async function updateItemType(id: string, itemTypeId: string) {
+  const updatedItem = await db.transaction(async (trx) => {
+    const [updatedItem] = await trx
+      .update(ItemTable)
+      .set({
+        itemTypeId,
+      })
+      .where(eq(ItemTable.id, id))
+      .returning();
+
+    if (updatedItem == null) throw new Error("Failed to update type");
+
+    await trx
+      .delete(ItemAttributeTable)
+      .where(eq(ItemAttributeTable.itemId, id));
+
+    const typeAttributes = await trx.query.TypeAttributeTable.findMany({
+      where: eq(TypeAttributeTable.itemTypeId, itemTypeId),
+      columns: {
+        id: true,
+        textDefaultValue: true,
+        numericDefaultValue: true,
+      },
+    });
+
+    if (typeAttributes.length > 0) {
+      await trx.insert(ItemAttributeTable).values(
+        typeAttributes.map(
+          ({ id: typeAttributeId, textDefaultValue, numericDefaultValue }) => ({
+            itemId: updatedItem.id,
+            typeAttributeId,
+            textValue: textDefaultValue,
+            numberValue: numericDefaultValue,
+          })
+        )
+      );
+    }
+
+    return updatedItem;
+  });
+
+  revalidateItemCache(id);
+
+  return updatedItem;
+}
+
+export async function updateItemTags(id: string, tagIds: string[]) {
+  const tags = await db.transaction(async (trx) => {
+    // Update
+    const tags = await trx
+      .insert(ItemTagTable)
+      .values(tagIds.map((tag) => ({ itemId: id, tagId: tag })))
+      .onConflictDoNothing({
+        target: [ItemTagTable.itemId, ItemTagTable.tagId],
+      })
+      .returning();
+
+    // Remove
+    await trx.delete(ItemTagTable).where(
+      and(
+        eq(ItemTagTable.itemId, id),
+        notExists(
+          db
+            .select()
+            .from(
+              sql`(values ${sql.join(
+                tagIds.map((tag) => sql`(${tag}::uuid)`),
+                sql`,`
+              )}) as new_tags(tag_id)`
+            )
+            .where(sql`new_tags.tag_id = ${ItemTagTable.tagId}`)
+        )
+      )
+    );
+
+    if (tags == null) {
+      trx.rollback();
+      throw new Error("Failed to update tags");
+    }
+
+    return tags;
+  });
+
+  tags.forEach((tag) => revalidateTagCache(tag.tagId));
+  revalidateItemCache(id);
+
+  return tags;
 }
 
 export async function deleteItem(id: string) {

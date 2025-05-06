@@ -345,6 +345,7 @@ export function FormObjectSelectField<
               className="bg-transparent hover:cursor-pointer"
               onClick={(e) => handleClick(e, field)}
               ref={ref}
+              type="button"
             >
               <XIcon />
             </Button>

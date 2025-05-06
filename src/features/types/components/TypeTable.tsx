@@ -41,7 +41,7 @@ export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
           <Select defaultValue="0" onValueChange={(e) => setIndex(Number(e))}>
             <SelectTrigger className="hover:cursor-pointer rounded-none">
               <ListFilter />
-              Filter
+              {types[index]?.name}
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>

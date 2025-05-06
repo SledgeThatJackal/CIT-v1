@@ -14,12 +14,15 @@ import {
   updateItem as updateItemDb,
   updateItemImageOrders as updateItemImageOrdersDb,
   deleteItemImage as deleteItemImageDb,
+  updateItemType as updateItemTypeDb,
+  updateItemTags as updateItemTagsDb,
 } from "../db/item";
 import { createItemSchema, CreateItemType } from "../schema/item";
 import {
   canCreateImage,
   canDeleteImage,
 } from "@/features/images/permissions/images";
+import { canUpdateTag } from "@/features/tags/permissions/tag";
 
 export async function createItem(rawData: CreateItemType) {
   const { success, data } = createItemSchema.safeParse(rawData);
@@ -67,6 +70,29 @@ export async function updateItemImageOrders(imageIds: string[]) {
 
   return {
     message: `Successfully reordered your images`,
+  };
+}
+
+export async function updateItemType(id: string, itemTypeId: string) {
+  if (!canUpdateItem(await getCurrentUser()))
+    return new Error("There was an error updating your item");
+
+  await updateItemTypeDb(id, itemTypeId);
+
+  return {
+    message: `Successfully changed type`,
+  };
+}
+
+export async function updateItemTags(id: string, tagIds: string[]) {
+  const user = await getCurrentUser();
+  if (!canUpdateItem(user) || !canUpdateTag(user))
+    return new Error("There was an error updating your tags");
+
+  await updateItemTagsDb(id, tagIds);
+
+  return {
+    message: `Successfully updated your tags`,
   };
 }
 

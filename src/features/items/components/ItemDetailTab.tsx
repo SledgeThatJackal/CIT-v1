@@ -12,57 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DetailField, DetailRowData } from "@/components/ui/custom/detail-area";
-import { TypeAttributeDataType } from "@/drizzle/schema";
 import Tag from "@/features/tags/components/Tag";
 import Link from "next/link";
 import React from "react";
-
-export type ItemType = {
-  id: string;
-  name: string;
-  description?: string;
-  externalUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  tags?: {
-    id: string;
-    name: string;
-    description?: string;
-    color: string;
-  }[];
-  itemType?: {
-    id: string;
-    name: string;
-  };
-  itemAttributes?: {
-    id: string;
-    typeAttributeId: string;
-    textValue?: string;
-    numericValue?: number;
-    typeAttribute: {
-      title: string;
-      dataType: TypeAttributeDataType;
-      displayOrder: number;
-    };
-  }[];
-  containerItems?: {
-    id: string;
-    containerId: string;
-    quantity: number;
-    container: {
-      name: string;
-      barcodeId: string;
-    };
-  }[];
-  itemImages?: {
-    id: string;
-    image: {
-      id: string;
-      fileName: string;
-    };
-    imageOrder: number;
-  }[];
-};
+import { ItemType } from "../schema/item";
 
 const fields: DetailField<ItemType>[] = [
   {
