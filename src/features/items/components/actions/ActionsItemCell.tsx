@@ -19,6 +19,7 @@ import ItemForm from "../ItemForm";
 
 export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
   const [component, setComponent] = useState<ReactNode>(undefined);
+  const [title, setTitle] = useState("");
   const alertButton = useRef<HTMLButtonElement>(null);
 
   return (
@@ -33,19 +34,27 @@ export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => setComponent(<DuplicateItem row={row} />)}
+          onSelect={() => {
+            setComponent(<DuplicateItem row={row} />);
+            setTitle(`Duplicating ${row.original.name}`);
+          }}
         >
           Duplicate Item
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => setComponent(<ItemForm item={row.original} />)}
+          onSelect={() => {
+            setComponent(<ItemForm item={row.original} />);
+            setTitle(`Editing ${row.original.name}`);
+          }}
         >
           Edit Item
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => setComponent(<EditContainers row={row} />)}
+          onSelect={() => {
+            setComponent(<EditContainers row={row} />);
+          }} // setTitle("Editing Containers");
         >
           Edit Containers
         </DropdownMenuItem>
@@ -57,7 +66,7 @@ export default function ActionsItemCell<S>({ row }: CellContext<ItemType, S>) {
           Delete Item
         </DropdownMenuItem>
       </ActionsMenu>
-      <ActionDialog>{component}</ActionDialog>
+      <ActionDialog title={title}>{component}</ActionDialog>
       <ActionAlertDialog
         action={deleteItem.bind(null, row.original.id)}
         loading={`Attempting to delete item: ${row.original.name}`}

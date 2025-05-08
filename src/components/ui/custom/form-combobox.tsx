@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "../popover";
-import { Button } from "../button";
+import { RequiredIcon } from "@/components/table/RequiredIcon";
+import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
+import { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { Button } from "../button";
 import {
   Command,
   CommandEmpty,
@@ -10,19 +12,20 @@ import {
   CommandItem,
   CommandList,
 } from "../command";
-import { FormField, FormItem, FormLabel } from "../form";
-import { FieldValues, Path, UseFormReturn } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { FormField, FormItem, FormLabel, FormMessage } from "../form";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 export default function FormCombobox<FormType extends FieldValues>({
   form,
   listData,
   path,
+  required = false,
   label,
 }: {
   form: UseFormReturn<FormType>;
   listData: { id: string; name: string; barcodeId: string }[];
   path: Path<FormType>;
+  required?: boolean;
   label: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -33,7 +36,9 @@ export default function FormCombobox<FormType extends FieldValues>({
       name={path}
       render={({ field }) => (
         <FormItem className="">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>
+            {required && <RequiredIcon />} {label}
+          </FormLabel>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -58,7 +63,9 @@ export default function FormCombobox<FormType extends FieldValues>({
                         key={`combobox-${data.id}`}
                         value={data.name}
                         onSelect={() => {
-                          form.setValue(path, data.id);
+                          form.setValue(path, data.id, {
+                            shouldValidate: true,
+                          });
                         }}
                       >
                         {data.name}
@@ -77,6 +84,7 @@ export default function FormCombobox<FormType extends FieldValues>({
               </Command>
             </PopoverContent>
           </Popover>
+          <FormMessage />
         </FormItem>
       )}
     />

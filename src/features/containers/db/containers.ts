@@ -1,8 +1,13 @@
 import { db } from "@/drizzle/db";
-import { ContainerImageTable, ContainerTable } from "@/drizzle/schema";
+import {
+  ContainerImageTable,
+  ContainerItemTable,
+  ContainerTable,
+} from "@/drizzle/schema";
 import { revalidateContainerImageCache } from "@/features/images/db/cache/images";
-import { eq, max } from "drizzle-orm";
+import { and, eq, max, notExists, sql } from "drizzle-orm";
 import { revalidateContainerCache } from "./cache/containers";
+import { revalidateItemCache } from "@/features/items/db/cache/item";
 
 export async function insertContainer(
   data: typeof ContainerTable.$inferInsert & { containerImages?: string[] }
@@ -106,6 +111,68 @@ export async function updateContainerImageOrders(ids: string[]) {
   containerImages.flat().forEach(({ id, containerId, imageId }) => {
     revalidateContainerImageCache(id, containerId, imageId);
   });
+}
+
+export async function updateContainerItems(
+  id: string,
+  updatedContainerItems: {
+    quantity: number;
+    itemId?: string;
+    containerId?: string;
+  }[]
+) {
+  const containerItems = await db.transaction(async (trx) => {
+    const containerItems = await trx
+      .insert(ContainerItemTable)
+      .values(
+        updatedContainerItems
+          .filter((updatedContainerItem) => updatedContainerItem.itemId)
+          .map((updatedContainerItem) => ({
+            itemId: updatedContainerItem.itemId!,
+            containerId: id,
+            quantity: updatedContainerItem.quantity,
+          }))
+      )
+      .onConflictDoUpdate({
+        target: [ContainerItemTable.itemId, ContainerItemTable.containerId],
+        set: { quantity: sql`excluded.quantity` },
+      })
+      .returning();
+
+    await trx.delete(ContainerItemTable).where(
+      and(
+        eq(ContainerItemTable.itemId, id),
+        notExists(
+          db
+            .select()
+            .from(
+              sql`(values ${sql.join(
+                updatedContainerItems.map(
+                  (updatedContainerItem) =>
+                    sql`(${updatedContainerItem.itemId}::uuid)`
+                ),
+                sql`,`
+              )}) as new_containeritems(item_id)`
+            )
+            .where(
+              sql`new_containeritems.item_id = ${ContainerItemTable.itemId}`
+            )
+        )
+      )
+    );
+
+    if (containerItems == null)
+      throw new Error("Failed to add items to container");
+
+    return containerItems;
+  });
+
+  containerItems.forEach(({ itemId, containerId }) => {
+    revalidateContainerCache(containerId);
+    revalidateItemCache(itemId);
+  });
+
+  return containerItems;
 }
 
 export async function deleteContainer(id: string) {

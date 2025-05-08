@@ -1,7 +1,19 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
-export function ActionDialog({ children }: { children?: ReactNode }) {
+export function ActionDialog({
+  title,
+  children,
+}: {
+  title?: string;
+  children?: ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -12,10 +24,11 @@ export function ActionDialog({ children }: { children?: ReactNode }) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle></DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div>{children}</div>
       </DialogContent>
+      <DialogDescription />
     </Dialog>
   );
 }

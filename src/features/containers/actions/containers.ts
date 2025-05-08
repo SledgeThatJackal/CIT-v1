@@ -12,6 +12,7 @@ import {
   insertContainerImages,
   updateContainer as updateContainerDb,
   updateContainerImageOrders as updateContainerImageOrdersDb,
+  updateContainerItems as updateContainerItemsDb,
 } from "../db/containers";
 import {
   canCreateContainer,
@@ -23,6 +24,7 @@ import {
   createContainerSchema,
   CreateContainerType,
 } from "../schema/containers";
+import { canUpdateItem } from "@/features/items/permissions/item";
 
 export async function createContainer(rawData: CreateContainerType) {
   const { success, data } = createContainerSchema.safeParse(rawData);
@@ -76,6 +78,26 @@ export async function updateContainerImageOrders(imageIds: string[]) {
 
   return {
     message: `Successfully reordered your images`,
+  };
+}
+
+export async function updateContainerItems(
+  id: string,
+  updatedContainerItems: {
+    quantity: number;
+    itemId?: string;
+    containerId?: string;
+  }[]
+) {
+  const user = await getCurrentUser();
+
+  if (!canUpdateItem(user) || !canUpdateContainer(user))
+    return new Error("There was an error updating your ContainerItems");
+
+  await updateContainerItemsDb(id, updatedContainerItems);
+
+  return {
+    message: `Successfully updated your ContainerItems`,
   };
 }
 

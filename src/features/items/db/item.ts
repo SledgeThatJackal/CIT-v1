@@ -11,6 +11,7 @@ import { and, eq, max, notExists, sql } from "drizzle-orm";
 import { revalidateItemCache } from "./cache/item";
 import { revalidateItemImageCache } from "@/features/images/db/cache/images";
 import { revalidateTagCache } from "@/features/tags/db/cache/tag";
+import { revalidateContainerCache } from "@/features/containers/db/cache/containers";
 
 export async function insertItem(
   data: typeof ItemTable.$inferInsert & {
@@ -451,6 +452,68 @@ export async function updateItemTags(id: string, tagIds: string[]) {
   revalidateItemCache(id);
 
   return tags;
+}
+
+export async function updateContainerItems(
+  id: string,
+  updatedContainerItems: {
+    quantity: number;
+    itemId?: string;
+    containerId?: string;
+  }[]
+) {
+  const containerItems = await db.transaction(async (trx) => {
+    const containerItems = await trx
+      .insert(ContainerItemTable)
+      .values(
+        updatedContainerItems
+          .filter((updatedContainerItem) => updatedContainerItem.containerId)
+          .map((updatedContainerItem) => ({
+            itemId: id,
+            containerId: updatedContainerItem.containerId!,
+            quantity: updatedContainerItem.quantity,
+          }))
+      )
+      .onConflictDoUpdate({
+        target: [ContainerItemTable.itemId, ContainerItemTable.containerId],
+        set: { quantity: sql`excluded.quantity` },
+      })
+      .returning();
+
+    await trx.delete(ContainerItemTable).where(
+      and(
+        eq(ContainerItemTable.itemId, id),
+        notExists(
+          db
+            .select()
+            .from(
+              sql`(values ${sql.join(
+                updatedContainerItems.map(
+                  (updatedContainerItem) =>
+                    sql`(${updatedContainerItem.containerId}::uuid)`
+                ),
+                sql`,`
+              )}) as new_containeritems(container_id)`
+            )
+            .where(
+              sql`new_containeritems.container_id = ${ContainerItemTable.containerId}`
+            )
+        )
+      )
+    );
+
+    if (containerItems == null)
+      throw new Error("Failed to put items into their containers");
+
+    return containerItems;
+  });
+
+  containerItems.forEach(({ itemId, containerId }) => {
+    revalidateContainerCache(containerId);
+    revalidateItemCache(itemId);
+  });
+
+  return containerItems;
 }
 
 export async function deleteItem(id: string) {
