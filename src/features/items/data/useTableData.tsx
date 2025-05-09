@@ -1,10 +1,10 @@
 "use client";
 
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import ImageCell from "@/components/renderers/ImageCell";
 import EditCell from "@/components/renderers/EditCell";
-import ActionsItemCell from "../components/actions/ActionsItemCell";
+import ImageCell from "@/components/renderers/ImageCell";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import Link from "next/link";
+import ActionsItemCell from "../components/actions/ActionsItemCell";
 import TagCell from "../components/renderers/TagCell";
 import TypeCell from "../components/renderers/TypeCell";
 import { ItemType } from "../schema/item";
@@ -74,4 +74,45 @@ const columns: ColumnDef<ItemType>[] = [
   }),
 ];
 
-export { columns };
+export function getColumns(
+  items?: ItemType,
+  type?: string
+): ColumnDef<ItemType>[] {
+  if (!type) return columns;
+
+  const itemAttributes = items?.itemAttributes.sort(
+    (a, b) => a.typeAttribute.displayOrder - b.typeAttribute.displayOrder
+  );
+
+  const attributeColumns =
+    itemAttributes?.map((itemAttribute, index) =>
+      columnHelper.accessor(
+        (row) =>
+          row.itemAttributes[index]?.typeAttribute.dataType.startsWith("s")
+            ? row.itemAttributes[index].textValue
+            : row.itemAttributes[index]?.numericValue,
+        {
+          id: `typeAttribute_${itemAttribute.typeAttribute.dataType}-${itemAttribute.typeAttribute.title}`,
+          header: () => (
+            <div className="text-start">
+              {itemAttribute.typeAttribute.title}
+            </div>
+          ),
+          cell: ({ getValue }) => <div>{getValue()}</div>,
+          enableSorting: false,
+        }
+      )
+    ) ?? [];
+
+  const startingColumns = columns.slice(0, columns.length - 2);
+  const endingColumns = columns.slice(columns.length - 2);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const typedColumns: any = [
+    ...startingColumns,
+    ...(attributeColumns || []),
+    ...endingColumns,
+  ];
+
+  return typedColumns;
+}

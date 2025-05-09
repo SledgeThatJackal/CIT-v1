@@ -24,7 +24,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { InputHTMLAttributes, useEffect, useState } from "react";
 import { Input } from "../ui/input";
 
@@ -51,8 +50,8 @@ export default function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [bodyKey, setBodyKey] = useState(0);
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  // const router = useRouter();
+  // const searchParams = useSearchParams();
 
   const table = useReactTable({
     data,
@@ -72,13 +71,15 @@ export default function DataTable<TData, TValue>({
       sorting,
       columnFilters,
     },
+    enableMultiSort: true,
+    maxMultiSortColCount: 3,
   });
 
-  function updateFilter() {
-    const params = new URLSearchParams(searchParams);
-    // params.set("filters", columnFilters);
-    router.replace(`?${params.toString()}`);
-  }
+  // function updateFilter() {
+  //   const params = new URLSearchParams(searchParams);
+  //   // params.set("filters", columnFilters);
+  //   router.replace(`?${params.toString()}`);
+  // }
 
   useEffect(() => {
     setBodyKey((prev) => prev + 1);

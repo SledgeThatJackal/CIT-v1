@@ -1,15 +1,14 @@
-import { PageHeader } from "@/components/PageHeader";
 import { db } from "@/drizzle/db";
 import {
   ContainerItemTable,
   ContainerTable,
   ItemImageTable,
+  ItemTable,
   ItemTypeTable,
   TagTable,
   TypeAttributeTable,
 } from "@/drizzle/schema";
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
-import CreateItemButton from "@/features/items/components/CreateItemButton";
 import ItemDataTable from "@/features/items/components/ItemDataTable";
 import { ItemContextProvider } from "@/features/items/data/ItemContextProvider";
 import { getItemGlobalTag } from "@/features/items/db/cache/item";
@@ -20,8 +19,14 @@ import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 import { getImages } from "../../container/page";
 
-export default async function Item() {
-  const itemData = await getItems();
+export default async function Item({
+  params,
+}: {
+  params: Promise<{ type?: string[] }>;
+}) {
+  const type = (await params).type?.[0];
+
+  const itemData = await getItems(type);
   const images = await getImages();
   const types = await getTypes();
   const tags = await getTags();
@@ -36,22 +41,20 @@ export default async function Item() {
           types={types}
           containers={containers}
         >
-          <PageHeader title="Items">
-            <CreateItemButton />
-          </PageHeader>
-          <ItemDataTable items={itemData} />
+          <ItemDataTable items={itemData} type={type} />
         </ItemContextProvider>
       </Suspense>
     </div>
   );
 }
 
-async function getItems() {
+async function getItems(type?: string) {
   "use cache";
 
   cacheTag(getItemGlobalTag());
 
   const rows = await db.query.ItemTable.findMany({
+    where: type ? eq(ItemTable.itemTypeId, type) : undefined,
     with: {
       containerItems: {
         orderBy: asc(ContainerItemTable.quantity),
