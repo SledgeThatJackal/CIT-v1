@@ -41,8 +41,14 @@ export function ActionAlertDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isLoading} onClick={performAction}>
+          <AlertDialogCancel className="hover:cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            disabled={isLoading}
+            onClick={performAction}
+            className="hover:cursor-pointer"
+          >
             <LoadingSwap isLoading={isLoading}>Yes</LoadingSwap>
           </AlertDialogAction>
         </AlertDialogFooter>

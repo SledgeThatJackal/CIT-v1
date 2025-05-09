@@ -40,11 +40,16 @@ export default function PopoverAction({
             <CardDescription>This Cannot be undone.</CardDescription>
           </CardHeader>
           <CardFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button
+              onClick={() => setIsOpen(false)}
+              className="hover:cursor-pointer"
+            >
+              Cancel
+            </Button>
             <Button
               disabled={isLoading}
               onClick={performAction}
-              className="ms-auto"
+              className="ms-auto hover:cursor-pointer"
               variant="destructive"
             >
               <LoadingSwap isLoading={isLoading}>Delete</LoadingSwap>
