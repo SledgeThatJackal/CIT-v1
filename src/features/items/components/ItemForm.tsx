@@ -38,6 +38,7 @@ import { createItemSchema, CreateItemType } from "../schema/item";
 
 export default function ItemForm({
   item,
+  isDuplication = false,
 }: {
   item?: {
     id: string;
@@ -74,6 +75,7 @@ export default function ItemForm({
       imageOrder: number;
     }[];
   };
+  isDuplication?: boolean;
 }) {
   const form = useForm<CreateItemType>({
     resolver: zodResolver(createItemSchema),
@@ -111,7 +113,8 @@ export default function ItemForm({
   const types = useTypes();
 
   async function onSubmit(values: CreateItemType) {
-    const action = item ? updateItem.bind(null, item!.id) : createItem;
+    const action =
+      item && !isDuplication ? updateItem.bind(null, item!.id) : createItem;
 
     function clearForm() {
       form.reset();
@@ -130,6 +133,7 @@ export default function ItemForm({
       form={form}
       onSubmit={onSubmit}
       className="overflow-y-auto max-h-[65vh] p-4"
+      isDuplication={isDuplication}
     >
       <GenericFormField form={form} path="name" label="Name" />
       <FormTextareaField form={form} path="description" label="Description" />

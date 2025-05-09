@@ -39,11 +39,13 @@ export default function GenericForm<T extends FieldValues>({
   onSubmit,
   className,
   children,
+  isDuplication = false,
 }: {
   form: UseFormReturn<T>;
   onSubmit: (values: T) => Promise<void>;
   className?: string;
   children: ReactNode;
+  isDuplication?: boolean;
 }) {
   const { isValid, isSubmitting, isDirty } = useFormState({
     control: form.control,
@@ -58,7 +60,7 @@ export default function GenericForm<T extends FieldValues>({
         {children}
         <div className="self-end">
           <Button
-            disabled={isSubmitting || !isValid || !isDirty}
+            disabled={isSubmitting || !isValid || (!isDirty && !isDuplication)}
             variant="secondary"
             type="submit"
             className="hover:cursor-pointer"
