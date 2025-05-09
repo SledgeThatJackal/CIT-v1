@@ -55,6 +55,15 @@ const columns: ColumnDef<ItemType>[] = [
     accessorKey: "itemType",
     header: "Type",
     cell: TypeCell,
+    filterFn: (row, columnId, filterValue) => {
+      const { name } = row.getValue<{ id: string; name: string }>(columnId);
+
+      return (
+        name.localeCompare(filterValue, undefined, {
+          sensitivity: "accent",
+        }) === 0
+      );
+    },
   },
   columnHelper.display({
     id: "actions",
