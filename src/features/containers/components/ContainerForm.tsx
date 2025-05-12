@@ -26,6 +26,7 @@ import { useContainers } from "../hooks/useContainers";
 
 export default function ContainerForm({
   container,
+  isDuplication = false,
 }: {
   container?: {
     id: string;
@@ -43,6 +44,7 @@ export default function ContainerForm({
       imageOrder: number;
     }[];
   };
+  isDuplication?: boolean;
 }) {
   const form = useForm<CreateContainerType>({
     resolver: zodResolver(createContainerSchema),
@@ -66,9 +68,10 @@ export default function ContainerForm({
   const parentContainers = useContainers();
 
   async function onSubmit(values: CreateContainerType) {
-    const action = container
-      ? updateContainer.bind(null, container.id)
-      : createContainer;
+    const action =
+      container && !isDuplication
+        ? updateContainer.bind(null, container.id)
+        : createContainer;
 
     const promise = () => action(values);
 
@@ -82,7 +85,7 @@ export default function ContainerForm({
   }
 
   return (
-    <GenericForm form={form} onSubmit={onSubmit}>
+    <GenericForm form={form} onSubmit={onSubmit} isDuplication={isDuplication}>
       <FormField
         control={form.control}
         name="name"
