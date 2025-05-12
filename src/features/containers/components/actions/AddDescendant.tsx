@@ -51,20 +51,24 @@ export default function AddDescendant({ row }: { row: Row<ContainerType> }) {
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2">
-        {orphans.map((orphan) => (
-          <Label
-            htmlFor={`orphan-${orphan.id}`}
-            key={orphan.id}
-            className="text-xs hover:cursor-pointer flex flex-row p-2 gap-2 rounded-lg bg-table-header"
-          >
-            <Checkbox
-              id={`orphan-${orphan.id}`}
-              className="hover:cursor-pointer"
-              onClick={() => handleClick(orphan.id)}
-            />
-            {orphan.name} ({orphan.barcodeId})
-          </Label>
-        ))}
+        {orphans.length > 0 ? (
+          orphans.map((orphan) => (
+            <Label
+              htmlFor={`orphan-${orphan.id}`}
+              key={orphan.id}
+              className="text-xs hover:cursor-pointer flex flex-row p-2 gap-2 rounded-lg bg-table-header"
+            >
+              <Checkbox
+                id={`orphan-${orphan.id}`}
+                className="hover:cursor-pointer"
+                onClick={() => handleClick(orphan.id)}
+              />
+              {orphan.name} ({orphan.barcodeId})
+            </Label>
+          ))
+        ) : (
+          <div>There are no containers without a parent</div>
+        )}
       </div>
       <Button
         variant="outline"
