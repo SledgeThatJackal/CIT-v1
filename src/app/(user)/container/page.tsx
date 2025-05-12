@@ -29,7 +29,11 @@ export default async function ContainerPage({
   return (
     <div className="container mx-auto py-10">
       <Suspense fallback={<div className="text-xl">No containers found</div>}>
-        <ContainerContextProvider images={images} containers={containerData}>
+        <ContainerContextProvider
+          images={images}
+          containers={containerData}
+          parentContainers={containerData}
+        >
           <PageHeader title="Containers">
             <CreateContainerButton />
           </PageHeader>

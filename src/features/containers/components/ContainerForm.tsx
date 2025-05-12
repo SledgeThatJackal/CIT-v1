@@ -16,13 +16,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { showPromiseToast } from "@/util/Toasts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useMemo } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { createContainer, updateContainer } from "../actions/containers";
+import { useParentContainers } from "../hooks/useParentContainers";
 import {
   createContainerSchema,
   CreateContainerType,
 } from "../schema/containers";
-import { useContainers } from "../hooks/useContainers";
 
 export default function ContainerForm({
   container,
@@ -65,7 +66,18 @@ export default function ContainerForm({
         },
   });
 
-  const parentContainers = useContainers();
+  const areaWatch = useWatch({
+    control: form.control,
+    name: "isArea",
+  });
+
+  const containers = useParentContainers();
+
+  const parentContainers = useMemo(() => {
+    return areaWatch
+      ? containers.filter((container) => container.isArea === true)
+      : containers;
+  }, [areaWatch, containers]);
 
   async function onSubmit(values: CreateContainerType) {
     const action =
