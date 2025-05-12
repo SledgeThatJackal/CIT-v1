@@ -13,6 +13,7 @@ import {
   updateContainer as updateContainerDb,
   updateContainerImageOrders as updateContainerImageOrdersDb,
   updateContainerItems as updateContainerItemsDb,
+  updateDescendants as updateDescendantsDb,
 } from "../db/containers";
 import {
   canCreateContainer,
@@ -98,6 +99,17 @@ export async function updateContainerItems(
 
   return {
     message: `Successfully updated your ContainerItems`,
+  };
+}
+
+export async function updateDescendants(id: string, descendants: string[]) {
+  if (!canUpdateContainer(await getCurrentUser()))
+    return new Error("There was an error updating your ContainerItems");
+
+  await updateDescendantsDb(id, descendants);
+
+  return {
+    message: `Successfully updated descendants`,
   };
 }
 

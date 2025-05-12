@@ -20,6 +20,7 @@ export default function ActionsContainerCell<S>({
   row,
 }: CellContext<ContainerType, S>) {
   const [component, setComponent] = useState<ReactNode>(undefined);
+  const [title, setTitle] = useState<string | undefined>();
   const alertButton = useRef<HTMLButtonElement>(null);
 
   return (
@@ -34,19 +35,28 @@ export default function ActionsContainerCell<S>({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => setComponent(<DuplicateContainer row={row} />)}
+          onSelect={() => {
+            setComponent(<DuplicateContainer row={row} />);
+            setTitle(`Duplicating ${row.original.name}`);
+          }}
         >
           Duplicate Container
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => setComponent(<CreateItem row={row} />)}
+          onSelect={() => {
+            setComponent(<CreateItem row={row} />);
+            setTitle(`Creating items for ${row.original.name}`);
+          }}
         >
           Create Item
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => setComponent(<AddDescendant row={row} />)}
+          onSelect={() => {
+            setComponent(<AddDescendant row={row} />);
+            setTitle(`Adding descendants to ${row.original.name}`);
+          }}
         >
           Add Descendant
         </DropdownMenuItem>
@@ -58,7 +68,7 @@ export default function ActionsContainerCell<S>({
           Delete Container
         </DropdownMenuItem>
       </ActionsMenu>
-      <ActionDialog>{component}</ActionDialog>
+      <ActionDialog title={title}>{component}</ActionDialog>
       <ActionAlertDialog
         action={deleteContainer.bind(null, row.original.id)}
         loading={`Attempting to delete container: ${row.original.name}`}

@@ -175,6 +175,27 @@ export async function updateContainerItems(
   return containerItems;
 }
 
+export async function updateDescendants(
+  parentId: string,
+  descendants: string[]
+) {
+  const updatedContainers = await Promise.all(
+    descendants.map((id) =>
+      db
+        .update(ContainerTable)
+        .set({ parentId })
+        .where(eq(ContainerTable.id, id))
+        .returning({ id: ContainerTable.id })
+    )
+  );
+
+  updatedContainers.flat().forEach(({ id }) => {
+    revalidateContainerCache(id);
+  });
+
+  revalidateContainerCache(parentId);
+}
+
 export async function deleteContainer(id: string) {
   const [deletedContainer] = await db
     .delete(ContainerTable)
