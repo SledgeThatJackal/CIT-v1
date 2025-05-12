@@ -50,6 +50,7 @@ export default function ActionsContainerCell<S>({
         >
           Add Descendant
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => alertButton.current?.click()}
