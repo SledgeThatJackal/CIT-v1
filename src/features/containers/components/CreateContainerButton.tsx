@@ -6,7 +6,7 @@ import ContainerForm from "./ContainerForm";
 
 export default function CreateContainerButton() {
   return (
-    <React.Fragment>
+    <div>
       <CreateFormButton
         title="Creating Container"
         buttonLabel="New Container"
@@ -14,6 +14,6 @@ export default function CreateContainerButton() {
       >
         <ContainerForm />
       </CreateFormButton>
-    </React.Fragment>
+    </div>
   );
 }

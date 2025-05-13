@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { db } from "@/drizzle/db";
 import { ContainerItemTable, ContainerTable } from "@/drizzle/schema";
+import BulkUploadButton from "@/features/containers/components/BulkUploadButton";
 import ContainerDataTable from "@/features/containers/components/ContainerDataTable";
 import CreateContainerButton from "@/features/containers/components/CreateContainerButton";
 import { ContainerContextProvider } from "@/features/containers/data/ContainerContextProvider";
@@ -25,7 +26,10 @@ export default async function ContainerPage({
       <Suspense fallback={<div className="text-xl">No containers found</div>}>
         <ContainerContextProvider images={images} containers={containerData}>
           <PageHeader title="Containers">
-            <CreateContainerButton />
+            <div className="flex flex-row gap-2">
+              <BulkUploadButton />
+              <CreateContainerButton />
+            </div>
           </PageHeader>
           <ContainerDataTable containers={containerData} />
         </ContainerContextProvider>
