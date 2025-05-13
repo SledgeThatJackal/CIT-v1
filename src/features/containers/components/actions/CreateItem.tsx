@@ -89,6 +89,7 @@ export default function CreateItem({
             row.original.containerItems.length + 1
           }`}
           containerId={row.original.id}
+          onCompletion={() => setValue("select")}
         />
       </TabsContent>
       <TabsContent value="existing">
@@ -96,6 +97,7 @@ export default function CreateItem({
           selectedImages={selectedImages}
           containerItems={row.original.containerItems}
           containerId={row.original.id}
+          onCompletion={() => setValue("select")}
         />
       </TabsContent>
     </Tabs>
@@ -124,7 +126,7 @@ function SelectTab({
       {images.map((image) => (
         <Label
           htmlFor={`image-${image.id}`}
-          className="relative w-40 bg-accent-alternate p-2 rounded-lg hover:cursor-pointer"
+          className="relative w-auto rounded-lg hover:cursor-pointer"
           key={`selectImage-${image.id}`}
         >
           <Checkbox
@@ -152,10 +154,12 @@ function NewTab({
   selectedImages,
   name,
   containerId,
+  onCompletion,
 }: {
   selectedImages: ImageType[];
   name: string;
   containerId: string;
+  onCompletion: () => void;
 }) {
   return (
     <ItemForm
@@ -174,12 +178,13 @@ function NewTab({
         containerItems: [{ id: "", quantity: 1, containerId }],
       }}
       isDuplication
-      onSuccess={() =>
+      onSuccess={() => {
         deleteContainerImagesFromIds(
           containerId,
           selectedImages.map((image) => image.id)
-        )
-      }
+        );
+        onCompletion();
+      }}
     />
   );
 }
@@ -188,6 +193,7 @@ function ExisitingTab({
   selectedImages,
   containerItems,
   containerId,
+  onCompletion,
 }: {
   selectedImages: ImageType[];
   containerItems: {
@@ -199,6 +205,7 @@ function ExisitingTab({
     };
   }[];
   containerId: string;
+  onCompletion: () => void;
 }) {
   const [itemId, setItemId] = useState<string | undefined>();
 
@@ -212,7 +219,8 @@ function ExisitingTab({
           selectedImages.map((image) => image.id),
           containerId
         ),
-      "Attempting to update item"
+      "Attempting to update item",
+      onCompletion
     );
   }
 
