@@ -30,7 +30,7 @@ export default function Tag({
   );
 }
 
-function getTextColor(color: string) {
+export function getTextColor(color: string) {
   const { r, g, b } = hexToRGB(color);
 
   const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;

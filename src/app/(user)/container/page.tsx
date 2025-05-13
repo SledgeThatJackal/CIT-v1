@@ -1,18 +1,12 @@
 import { PageHeader } from "@/components/PageHeader";
 import { db } from "@/drizzle/db";
-import {
-  ContainerImageTable,
-  ContainerTable,
-  ImageTable,
-} from "@/drizzle/schema";
+import { ContainerItemTable, ContainerTable } from "@/drizzle/schema";
 import ContainerDataTable from "@/features/containers/components/ContainerDataTable";
 import CreateContainerButton from "@/features/containers/components/CreateContainerButton";
 import { ContainerContextProvider } from "@/features/containers/data/ContainerContextProvider";
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
-import { ContainerType } from "@/features/containers/schema/containers";
 import { getImageGlobalTag } from "@/features/images/db/cache/images";
-import { asc, eq } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
+import { asc } from "drizzle-orm";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 
@@ -29,11 +23,7 @@ export default async function ContainerPage({
   return (
     <div className="container mx-auto py-10">
       <Suspense fallback={<div className="text-xl">No containers found</div>}>
-        <ContainerContextProvider
-          images={images}
-          containers={containerData}
-          parentContainers={containerData}
-        >
+        <ContainerContextProvider images={images} containers={containerData}>
           <PageHeader title="Containers">
             <CreateContainerButton />
           </PageHeader>
@@ -49,71 +39,65 @@ export async function getContainers() {
 
   cacheTag(getContainerGlobalTag());
 
-  const ParentContainer = alias(ContainerTable, "parent");
-
-  const rows = db
-    .select({
-      id: ContainerTable.id,
-      name: ContainerTable.name,
-      description: ContainerTable.description,
-      barcodeId: ContainerTable.barcodeId,
-      isArea: ContainerTable.isArea,
-      createdAt: ContainerTable.createdAt,
-      updatedAt: ContainerTable.updatedAt,
+  const rows = await db.query.ContainerTable.findMany({
+    orderBy: asc(ContainerTable.name),
+    with: {
       parent: {
-        id: ParentContainer.id,
-        name: ParentContainer.name,
-        barcodeId: ParentContainer.barcodeId,
-        isArea: ParentContainer.isArea,
-      },
-      containerImage: {
-        id: ContainerImageTable.id,
-        imageId: ImageTable.id,
-        fileName: ImageTable.fileName,
-        imageOrder: ContainerImageTable.imageOrder,
-      },
-    })
-    .from(ContainerTable)
-    .leftJoin(ParentContainer, eq(ContainerTable.parentId, ParentContainer.id))
-    .leftJoin(
-      ContainerImageTable,
-      eq(ContainerImageTable.containerId, ContainerTable.id)
-    )
-    .leftJoin(ImageTable, eq(ImageTable.id, ContainerImageTable.imageId))
-    .orderBy(asc(ContainerTable.name));
-
-  const containers = new Map<string, ContainerType>();
-
-  (await rows).forEach((row) => {
-    if (!containers.has(row.id)) {
-      containers.set(row.id, {
-        id: row.id,
-        name: row.name,
-        description: row.description ?? "",
-        barcodeId: row.barcodeId,
-        isArea: row.isArea,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        parent: row.parent,
-        containerImages: [],
-      });
-    }
-
-    const container = containers.get(row.id);
-
-    if (row.containerImage.id) {
-      container?.containerImages.push({
-        id: row.containerImage.id,
-        imageOrder: row.containerImage.imageOrder ?? 0,
-        image: {
-          id: row.containerImage.imageId ?? "",
-          fileName: row.containerImage.fileName ?? "",
+        columns: {
+          id: true,
+          name: true,
+          barcodeId: true,
+          isArea: true,
         },
-      });
-    }
+      },
+      containerImages: {
+        columns: {
+          id: true,
+          imageOrder: true,
+        },
+        with: {
+          image: {
+            columns: {
+              id: true,
+              fileName: true,
+            },
+          },
+        },
+      },
+      containerItems: {
+        orderBy: asc(ContainerItemTable.quantity),
+        columns: {
+          id: true,
+          itemId: true,
+          quantity: true,
+        },
+        with: {
+          item: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
   });
 
-  return Array.from(containers.values());
+  return rows.map((row) => {
+    return {
+      ...row,
+      description: row.description ?? "",
+      containerImages: row.containerImages
+        .filter((image) => image)
+        .map((containerImage) => {
+          return {
+            ...containerImage,
+            imageOrder: containerImage.imageOrder ?? 0,
+          };
+        }),
+      createdAt: row.createdAt.toLocaleString(),
+      updatedAt: row.updatedAt.toLocaleString(),
+    };
+  });
 }
 
 export async function getImages() {

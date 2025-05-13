@@ -5,9 +5,9 @@ import {
   ContainerTable,
 } from "@/drizzle/schema";
 import { revalidateContainerImageCache } from "@/features/images/db/cache/images";
+import { revalidateItemCache } from "@/features/items/db/cache/item";
 import { and, eq, max, notExists, sql } from "drizzle-orm";
 import { revalidateContainerCache } from "./cache/containers";
-import { revalidateItemCache } from "@/features/items/db/cache/item";
 
 export async function insertContainer(
   data: typeof ContainerTable.$inferInsert & { containerImages?: string[] }
@@ -224,4 +224,33 @@ export async function deleteContainerImages(id: string) {
   );
 
   revalidateContainerCache(deletedContainerImage.containerId);
+}
+
+export async function deleteContainerImagesFromIds(
+  containerId: string,
+  imageIds: string[]
+) {
+  const deletedContainerImages = await Promise.all(
+    imageIds.map((imageId) =>
+      db
+        .delete(ContainerImageTable)
+        .where(
+          and(
+            eq(ContainerImageTable.containerId, containerId),
+            eq(ContainerImageTable.imageId, imageId)
+          )
+        )
+        .returning({
+          id: ContainerImageTable.id,
+          containerId: ContainerImageTable.containerId,
+          imageId: ContainerImageTable.imageId,
+        })
+    )
+  );
+
+  if (deletedContainerImages == null) throw new Error("Failed to delete image");
+
+  deletedContainerImages.flat().forEach(({ id, containerId, imageId }) => {
+    revalidateContainerImageCache(id, containerId, imageId);
+  });
 }

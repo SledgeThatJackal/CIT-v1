@@ -14,6 +14,7 @@ import {
   updateContainerImageOrders as updateContainerImageOrdersDb,
   updateContainerItems as updateContainerItemsDb,
   updateDescendants as updateDescendantsDb,
+  deleteContainerImagesFromIds as deleteContainerImagesFromIdsDb,
 } from "../db/containers";
 import {
   canCreateContainer,
@@ -130,6 +131,21 @@ export async function deleteContainerImage(id: string) {
     return new Error("There was an error deleting your image");
 
   await deleteContainerImages(id);
+
+  return {
+    message: "Successfully deleted image",
+  };
+}
+
+export async function deleteContainerImagesFromIds(
+  containerId: string,
+  imageIds: string[]
+) {
+  const user = await getCurrentUser();
+  if (!canDeleteContainer(user) || !canDeleteImage(user))
+    return new Error("There was an error deleting your image");
+
+  await deleteContainerImagesFromIdsDb(containerId, imageIds);
 
   return {
     message: "Successfully deleted image",

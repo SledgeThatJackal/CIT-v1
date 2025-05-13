@@ -8,9 +8,31 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import ActionsContainerCell from "../components/actions/ActionsContainerCell";
 import { ContainerType } from "../schema/containers";
 
-const columnHelper = createColumnHelper<ContainerType>();
+const columnHelper = createColumnHelper<
+  ContainerType & {
+    containerItems: {
+      id: string;
+      itemId: string;
+      quantity: number;
+      item: {
+        name: string;
+      };
+    }[];
+  }
+>();
 
-const columns: ColumnDef<ContainerType>[] = [
+const columns: ColumnDef<
+  ContainerType & {
+    containerItems: {
+      id: string;
+      itemId: string;
+      quantity: number;
+      item: {
+        name: string;
+      };
+    }[];
+  }
+>[] = [
   {
     accessorKey: "containerImages",
     header: "Image(s)",

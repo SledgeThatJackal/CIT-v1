@@ -39,6 +39,7 @@ import { createItemSchema, CreateItemType } from "../schema/item";
 export default function ItemForm({
   item,
   isDuplication = false,
+  onSuccess,
 }: {
   item?: {
     id: string;
@@ -76,6 +77,7 @@ export default function ItemForm({
     }[];
   };
   isDuplication?: boolean;
+  onSuccess?: () => void;
 }) {
   const form = useForm<CreateItemType>({
     resolver: zodResolver(createItemSchema),
@@ -119,6 +121,7 @@ export default function ItemForm({
     function clearForm() {
       form.reset();
       itemTypeRef.current?.click();
+      onSuccess?.();
     }
 
     showPromiseToast<{ message: string }>(

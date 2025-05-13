@@ -31,8 +31,16 @@ export default function ContainerDataTable({
       };
       imageOrder: number;
     }[];
-    createdAt: Date;
-    updatedAt: Date;
+    containerItems: {
+      id: string;
+      itemId: string;
+      quantity: number;
+      item: {
+        name: string;
+      };
+    }[];
+    createdAt: string;
+    updatedAt: string;
     description?: string | undefined;
   }[];
 }) {

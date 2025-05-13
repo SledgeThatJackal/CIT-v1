@@ -16,8 +16,8 @@ export const containerSchema = z.object({
   parent: parentContainerSchema.nullable(),
   isArea: z.boolean(),
   containerImages: z.array(imageJoinSchema),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const createContainerSchema = z.object({

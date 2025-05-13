@@ -1,5 +1,6 @@
 import { db } from "@/drizzle/db";
 import {
+  ContainerImageTable,
   ContainerItemTable,
   ItemAttributeTable,
   ItemImageTable,
@@ -7,11 +8,14 @@ import {
   ItemTagTable,
   TypeAttributeTable,
 } from "@/drizzle/schema";
-import { and, eq, max, notExists, sql } from "drizzle-orm";
-import { revalidateItemCache } from "./cache/item";
-import { revalidateItemImageCache } from "@/features/images/db/cache/images";
-import { revalidateTagCache } from "@/features/tags/db/cache/tag";
 import { revalidateContainerCache } from "@/features/containers/db/cache/containers";
+import {
+  revalidateContainerImageCache,
+  revalidateItemImageCache,
+} from "@/features/images/db/cache/images";
+import { revalidateTagCache } from "@/features/tags/db/cache/tag";
+import { and, eq, inArray, max, notExists, sql } from "drizzle-orm";
+import { revalidateItemCache } from "./cache/item";
 
 export async function insertItem(
   data: typeof ItemTable.$inferInsert & {
@@ -142,6 +146,9 @@ export async function insertItemImages(id: string, imageIds: string[]) {
           imageOrder: imageOrder + index + 1,
         }))
       )
+      .onConflictDoNothing({
+        target: [ItemImageTable.itemId, ItemImageTable.imageId],
+      })
       .returning();
 
     if (itemImages.length === 0) {
@@ -155,6 +162,74 @@ export async function insertItemImages(id: string, imageIds: string[]) {
   itemImages.forEach(({ id, itemId, imageId }) =>
     revalidateItemImageCache(id, itemId, imageId)
   );
+}
+
+export async function addItemImages(
+  id: string,
+  imageIds: string[],
+  containerId: string
+) {
+  const { updatedItemImages, deletedContainerImages } = await db.transaction(
+    async (trx) => {
+      const [maxImageOrder] = await trx
+        .select({ imageOrder: max(ItemImageTable.imageOrder) })
+        .from(ItemImageTable)
+        .where(eq(ItemImageTable.id, id));
+
+      const imageOrder = maxImageOrder?.imageOrder ?? 0;
+
+      const itemImages = await trx
+        .insert(ItemImageTable)
+        .values(
+          imageIds.map((imageId, index) => ({
+            itemId: id,
+            imageId: imageId,
+            imageOrder: imageOrder + index + 1,
+          }))
+        )
+        .onConflictDoUpdate({
+          set: { updatedAt: new Date() },
+          target: [ItemImageTable.itemId, ItemImageTable.imageId],
+        })
+        .returning({
+          id: ItemImageTable.id,
+          itemId: ItemImageTable.itemId,
+          imageId: ItemImageTable.imageId,
+        });
+
+      if (itemImages.length === 0) {
+        trx.rollback();
+        throw new Error("Failed to create images");
+      }
+
+      const deletedContainerImages = await trx
+        .delete(ContainerImageTable)
+        .where(
+          and(
+            eq(ContainerImageTable.containerId, containerId),
+            inArray(ContainerImageTable.imageId, imageIds)
+          )
+        )
+        .returning({
+          id: ContainerImageTable.id,
+          containerId: ContainerImageTable.containerId,
+          imageId: ContainerImageTable.imageId,
+        });
+
+      if (deletedContainerImages == null)
+        throw new Error("Failed to delete image");
+
+      return { updatedItemImages: itemImages, deletedContainerImages };
+    }
+  );
+
+  updatedItemImages.forEach(({ id, itemId, imageId }) =>
+    revalidateItemImageCache(id, itemId, imageId)
+  );
+
+  deletedContainerImages.forEach(({ id, containerId, imageId }) => {
+    revalidateContainerImageCache(id, containerId, imageId);
+  });
 }
 
 export async function updateItem(

@@ -17,6 +17,7 @@ import {
   updateItemType as updateItemTypeDb,
   updateItemTags as updateItemTagsDb,
   updateContainerItems as updateContainerItemsDb,
+  addItemImages as addItemImagesDb,
 } from "../db/item";
 import { createItemSchema, CreateItemType } from "../schema/item";
 import {
@@ -24,7 +25,10 @@ import {
   canDeleteImage,
 } from "@/features/images/permissions/images";
 import { canUpdateTag } from "@/features/tags/permissions/tag";
-import { canUpdateContainer } from "@/features/containers/permissions/container";
+import {
+  canUpdateContainer,
+  canUpdateContainerImage,
+} from "@/features/containers/permissions/container";
 
 export async function createItem(rawData: CreateItemType) {
   const { success, data } = createItemSchema.safeParse(rawData);
@@ -48,6 +52,23 @@ export async function createItemImages(id: string, imageIds: string[]) {
 
   return {
     message: "Successfully created your images",
+  };
+}
+
+export async function addItemImages(
+  id: string,
+  imageIds: string[],
+  containerId: string
+) {
+  const user = await getCurrentUser();
+
+  if (!canUpdateItemImage(user) || !canUpdateContainerImage(user))
+    return new Error("There was an error updating your item");
+
+  await addItemImagesDb(id, imageIds, containerId);
+
+  return {
+    message: `Successfully updated your item`,
   };
 }
 

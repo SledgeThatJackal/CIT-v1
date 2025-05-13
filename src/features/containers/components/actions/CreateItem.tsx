@@ -1,25 +1,50 @@
 "use client";
 
-import { Row } from "@tanstack/react-table";
-import { ContainerType } from "../../schema/containers";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dispatch, SetStateAction, useState } from "react";
-import { ImageType } from "@/features/images/schema/images";
-import Image from "next/image";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageType } from "@/features/images/schema/images";
+import { Row } from "@tanstack/react-table";
+import Image from "next/image";
+import { Dispatch, SetStateAction, useState } from "react";
+import { ContainerType } from "../../schema/containers";
+
+import ItemForm from "@/features/items/components/ItemForm";
+import "@/features/items/style/item.css";
+import { deleteContainerImagesFromIds } from "../../actions/containers";
+import { cn } from "@/lib/utils";
+import { showPromiseToast } from "@/util/Toasts";
+import { addItemImages } from "@/features/items/actions/item";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const tabValues = ["select", "new", "existing"] as const;
 type TabType = (typeof tabValues)[number];
 
-export default function CreateItem({ row }: { row: Row<ContainerType> }) {
+export default function CreateItem({
+  row,
+}: {
+  row: Row<
+    ContainerType & {
+      containerItems: {
+        id: string;
+        itemId: string;
+        quantity: number;
+        item: {
+          name: string;
+        };
+      }[];
+    }
+  >;
+}) {
   const images = row.original.containerImages.map(
     (containerImage) => containerImage.image
   );
 
   const [selectedImages, setSelectedImages] = useState<ImageType[]>([]);
-  const [value, setValue] = useState<TabType>("select");
+  const [value, setValue] = useState<TabType>(
+    images.length < 1 ? "new" : "select"
+  );
 
   return (
     <Tabs value={value}>
@@ -28,6 +53,7 @@ export default function CreateItem({ row }: { row: Row<ContainerType> }) {
           value="select"
           className="hover:cursor-pointer"
           onClick={() => setValue("select")}
+          disabled={images.length < 1}
         >
           Select
         </TabsTrigger>
@@ -42,6 +68,9 @@ export default function CreateItem({ row }: { row: Row<ContainerType> }) {
           value="existing"
           className="hover:cursor-pointer"
           onClick={() => setValue("existing")}
+          disabled={
+            selectedImages.length < 1 || row.original.containerItems.length < 1
+          }
         >
           Existing Items
         </TabsTrigger>
@@ -54,10 +83,20 @@ export default function CreateItem({ row }: { row: Row<ContainerType> }) {
         />
       </TabsContent>
       <TabsContent value="new">
-        <NewTab selectedImages={selectedImages} />
+        <NewTab
+          selectedImages={selectedImages}
+          name={`${row.original.name}-Item${
+            row.original.containerItems.length + 1
+          }`}
+          containerId={row.original.id}
+        />
       </TabsContent>
       <TabsContent value="existing">
-        <ExisitingTab selectedImages={selectedImages} />
+        <ExisitingTab
+          selectedImages={selectedImages}
+          containerItems={row.original.containerItems}
+          containerId={row.original.id}
+        />
       </TabsContent>
     </Tabs>
   );
@@ -109,16 +148,98 @@ function SelectTab({
   );
 }
 
-function NewTab({ selectedImages }: { selectedImages: ImageType[] }) {
+function NewTab({
+  selectedImages,
+  name,
+  containerId,
+}: {
+  selectedImages: ImageType[];
+  name: string;
+  containerId: string;
+}) {
   return (
-    <>
-      {selectedImages.map((image) => (
-        <div key={`selected-${image.id}`}>{image.fileName}</div>
-      ))}
-    </>
+    <ItemForm
+      item={{
+        id: "",
+        name,
+        description: "",
+        externalURL: "",
+        tags: [],
+        itemAttributes: [],
+        itemImages: selectedImages.map((image, index) => ({
+          id: "",
+          image,
+          imageOrder: index + 1,
+        })),
+        containerItems: [{ id: "", quantity: 1, containerId }],
+      }}
+      isDuplication
+      onSuccess={() =>
+        deleteContainerImagesFromIds(
+          containerId,
+          selectedImages.map((image) => image.id)
+        )
+      }
+    />
   );
 }
 
-function ExisitingTab({ selectedImages }: { selectedImages: ImageType[] }) {
-  return <div>Existing</div>;
+function ExisitingTab({
+  selectedImages,
+  containerItems,
+  containerId,
+}: {
+  selectedImages: ImageType[];
+  containerItems: {
+    id: string;
+    itemId: string;
+    quantity: number;
+    item: {
+      name: string;
+    };
+  }[];
+  containerId: string;
+}) {
+  const [itemId, setItemId] = useState<string | undefined>();
+
+  function handleSubmit() {
+    const action = addItemImages;
+
+    showPromiseToast(
+      () =>
+        action(
+          itemId!,
+          selectedImages.map((image) => image.id),
+          containerId
+        ),
+      "Attempting to update item"
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        {containerItems.map((containerItem) => (
+          <Label
+            key={containerItem.id}
+            className={cn(
+              "itemOption p-3 rounded-lg hover:cursor-pointer",
+              itemId === containerItem.itemId && "selected"
+            )}
+            onClick={() => setItemId(containerItem.itemId)}
+          >
+            {containerItem.item.name}
+          </Label>
+        ))}
+      </div>
+      <Button
+        variant="outline"
+        disabled={!itemId}
+        className="hover:cursor-pointer"
+        onClick={handleSubmit}
+      >
+        Submit
+      </Button>
+    </div>
+  );
 }

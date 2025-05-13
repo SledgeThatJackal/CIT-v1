@@ -68,5 +68,11 @@ export const itemSchema = z.object({
   updatedAt: z.string().date(),
 });
 
+export const simpleItemSchema = z.object({
+  id: z.string().uuid().min(1, "Required"),
+  name: z.string().min(1, "Required"),
+});
+
 export type CreateItemType = z.infer<typeof createItemSchema>;
 export type ItemType = z.infer<typeof itemSchema>;
+export type SimpleItemType = z.infer<typeof simpleItemSchema>;

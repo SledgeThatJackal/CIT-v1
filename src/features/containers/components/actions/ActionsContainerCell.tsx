@@ -46,7 +46,7 @@ export default function ActionsContainerCell<S>({
           className="cursor-pointer"
           onSelect={() => {
             setComponent(<CreateItem row={row} />);
-            setTitle(`Creating items for ${row.original.name}`);
+            setTitle(`Creating Item for ${row.original.name}`);
           }}
         >
           Create Item
