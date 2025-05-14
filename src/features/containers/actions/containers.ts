@@ -51,7 +51,7 @@ export async function bulkCreateContainers(data: Map<string, string[]>) {
   await bulkInsertContainers(data);
 
   return {
-    message: `Successfully created your container(s)`,
+    message: `Successfully uploaded zip file and created container(s)`,
   };
 }
 
