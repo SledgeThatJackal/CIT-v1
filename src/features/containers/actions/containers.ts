@@ -15,6 +15,7 @@ import {
   updateContainerItems as updateContainerItemsDb,
   updateDescendants as updateDescendantsDb,
   deleteContainerImagesFromIds as deleteContainerImagesFromIdsDb,
+  bulkInsertContainers,
 } from "../db/containers";
 import {
   canCreateContainer,
@@ -38,6 +39,19 @@ export async function createContainer(rawData: CreateContainerType) {
 
   return {
     message: `Successfully created your container: ${container.name} (${container.barcodeId})`,
+  };
+}
+
+export async function bulkCreateContainers(data: Map<string, string[]>) {
+  const user = await getCurrentUser();
+
+  if (!canCreateContainer(user) || !canCreateImage(user))
+    return new Error("There was an error creating your container");
+
+  await bulkInsertContainers(data);
+
+  return {
+    message: `Successfully created your container(s)`,
   };
 }
 

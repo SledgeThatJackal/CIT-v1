@@ -13,7 +13,12 @@ export default function BulkUploadButton() {
 
     const data = new FormData();
 
-    data.append("file", e.target.files[0]);
+    data.append("zipFile", e.target.files[0]);
+
+    fetch("/api/zip", {
+      method: "POST",
+      body: data,
+    });
   }
 
   return (

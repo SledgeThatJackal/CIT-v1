@@ -3,11 +3,21 @@ import {
   ContainerImageTable,
   ContainerItemTable,
   ContainerTable,
+  ImageTable,
 } from "@/drizzle/schema";
 import { revalidateContainerImageCache } from "@/features/images/db/cache/images";
 import { revalidateItemCache } from "@/features/items/db/cache/item";
-import { and, eq, max, notExists, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  ExtractTablesWithRelations,
+  max,
+  notExists,
+  sql,
+} from "drizzle-orm";
 import { revalidateContainerCache } from "./cache/containers";
+import { PgTransaction } from "drizzle-orm/pg-core";
+import { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 
 export async function insertContainer(
   data: typeof ContainerTable.$inferInsert & { containerImages?: string[] }
@@ -43,37 +53,100 @@ export async function insertContainer(
   return newContainer;
 }
 
-export async function insertContainerImages(id: string, imageIds: string[]) {
-  const containerImages = await db.transaction(async (trx) => {
-    const [maxImageOrder] = await trx
-      .select({ imageOrder: max(ContainerImageTable.imageOrder) })
-      .from(ContainerImageTable)
-      .where(eq(ContainerImageTable.id, id));
+export async function bulkInsertContainers(data: Map<string, string[]>) {
+  const newContainerIds = await db.transaction(async (trx) => {
+    const containerIds: string[] = [];
 
-    const imageOrder = maxImageOrder?.imageOrder ?? 0;
+    for (const [barcodeId, fileNames] of data) {
+      const containerId = await trx
+        .insert(ContainerTable)
+        .values({ name: barcodeId, barcodeId, isArea: false })
+        .onConflictDoUpdate({
+          target: ContainerTable.barcodeId,
+          set: { updatedAt: new Date() },
+        })
+        .returning({ id: ContainerTable.id })
+        .then((row) => row[0]!.id);
 
-    const containerImages = await trx
-      .insert(ContainerImageTable)
-      .values(
-        imageIds.map((imageId, index) => ({
-          containerId: id,
-          imageId: imageId,
-          imageOrder: imageOrder + index + 1,
-        }))
-      )
-      .returning();
+      if (containerId == null) {
+        trx.rollback();
+        throw new Error("Failed to create container(s)");
+      }
 
-    if (containerImages.length === 0) {
-      trx.rollback();
-      throw new Error("Failed to create images");
+      if (fileNames.length !== 0) {
+        const imageIds = await trx
+          .insert(ImageTable)
+          .values(fileNames.map((fileName) => ({ fileName })))
+          .onConflictDoUpdate({
+            target: ImageTable.fileName,
+            set: { updatedAt: new Date() },
+          })
+          .returning({ id: ImageTable.id })
+          .then((rows) => rows.map((r) => r.id));
+
+        if (imageIds == null || imageIds.length === 0) {
+          trx.rollback();
+          throw new Error("Failed to create image(s)");
+        }
+
+        await createContainerImages(trx, containerId, imageIds);
+      }
+
+      containerIds.push(containerId);
     }
 
-    return containerImages;
+    return containerIds;
+  });
+
+  newContainerIds.forEach((id) => revalidateContainerCache(id));
+}
+
+export async function insertContainerImages(id: string, imageIds: string[]) {
+  const containerImages = await db.transaction(async (trx) => {
+    return createContainerImages(trx, id, imageIds);
   });
 
   containerImages.forEach(({ id, containerId, imageId }) => {
     revalidateContainerImageCache(id, containerId, imageId);
   });
+}
+
+async function createContainerImages(
+  trx: PgTransaction<
+    NodePgQueryResultHKT,
+    typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema"),
+    ExtractTablesWithRelations<
+      typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema")
+    >
+  >,
+  id: string,
+  imageIds: string[]
+) {
+  const [maxImageOrder] = await trx
+    .select({ imageOrder: max(ContainerImageTable.imageOrder) })
+    .from(ContainerImageTable)
+    .where(eq(ContainerImageTable.id, id));
+
+  const imageOrder = maxImageOrder?.imageOrder ?? 0;
+
+  const containerImages = await trx
+    .insert(ContainerImageTable)
+    .values(
+      imageIds.map((imageId, index) => ({
+        containerId: id,
+        imageId: imageId,
+        imageOrder: imageOrder + index + 1,
+      }))
+    )
+    .onConflictDoUpdate({
+      target: [ContainerImageTable.containerId, ContainerImageTable.imageId],
+      set: { updatedAt: new Date() },
+    })
+    .returning();
+
+  if (containerImages.length === 0) trx.rollback();
+
+  return containerImages;
 }
 
 export async function updateContainer(
