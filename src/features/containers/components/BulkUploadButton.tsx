@@ -9,16 +9,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { showPromiseToast } from "@/util/Toasts";
-import { Ban, CircleHelp, File, FileUp, Upload } from "lucide-react";
+import { Ban, File, FileUp, Upload } from "lucide-react";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 
+import HelpToolTip from "@/components/ui/custom/help-tooltip";
 import "../style/container.css";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export default function BulkUploadButton() {
   const [open, setOpen] = useState(false);
@@ -89,16 +84,9 @@ function ZipDialog({
         <DialogHeader>
           <DialogTitle className="flex gap-2 items-center">
             Upload Zip File
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <CircleHelp className="text-yellow-500" />
-                </TooltipTrigger>
-                <TooltipContent className="bg-accent-alternate text-white">
-                  <FileStructureText />
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <HelpToolTip>
+              <FileStructureText />
+            </HelpToolTip>
           </DialogTitle>
         </DialogHeader>
         <div

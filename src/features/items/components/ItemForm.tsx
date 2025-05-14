@@ -6,6 +6,7 @@ import GenericForm, {
   GenericFormField,
 } from "@/components/form/GenericForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import HelpToolTip from "@/components/ui/custom/help-tooltip";
 import ImageSelector from "@/components/ui/custom/image-selector";
 import { MultiSelect } from "@/components/ui/custom/multi-select";
 import TrashButton from "@/components/ui/custom/trash-button";
@@ -15,17 +16,22 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
+  FormMessageAlt,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { TypeAttributeDataType } from "@/drizzle/schema";
 import { useContainers } from "@/features/containers/hooks/useContainers";
 import Tag from "@/features/tags/components/Tag";
 import { useTags } from "@/features/tags/hooks/useTags";
 import { useTypes } from "@/features/types/hooks/useTypes";
+import { cn } from "@/lib/utils";
 import { showPromiseToast } from "@/util/Toasts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon } from "lucide-react";
 import React, { useEffect, useMemo, useRef } from "react";
 import {
+  FieldValues,
   Path,
   useFieldArray,
   UseFieldArrayReturn,
@@ -206,6 +212,7 @@ function ItemAttributeSection({
       {
         dataType: TypeAttributeDataType;
         path: Path<CreateItemType>;
+        duplicatePath: Path<CreateItemType>;
         title: string;
       }
     >
@@ -229,6 +236,7 @@ function ItemAttributeSection({
       referenceData.current[attribute.id] = {
         dataType,
         path: `itemAttributes.${index}.${path}Value`,
+        duplicatePath: `itemAttributes.${index}.duplicate`,
         title: attribute.title,
       };
 
@@ -247,7 +255,12 @@ function ItemAttributeSection({
   return (
     <Card className="mt-4 bg-accent-alternate">
       <CardHeader>
-        <CardTitle>Attributes</CardTitle>
+        <CardTitle className="flex gap-2 text-center items-center">
+          Attributes
+          <HelpToolTip>
+            <div className="p-1">Bunch of text</div>
+          </HelpToolTip>
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-y-auto max-h-[5vh]">
         {typeWatch ? (
@@ -276,17 +289,55 @@ function ItemAttributeRow({
   config?: {
     dataType: TypeAttributeDataType;
     path: Path<CreateItemType>;
+    duplicatePath: Path<CreateItemType>;
     title: string;
   };
 }) {
   if (!config) return;
 
   return (
-    <GenericFormField
-      form={form}
-      path={config.path}
-      label={config.title}
-      type={config.dataType === "boolean" ? "binaryCheckbox" : config.dataType}
+    <div
+      className={cn(
+        config.dataType !== "boolean" && "grid grid-cols-[1fr_5rem]"
+      )}
+    >
+      <GenericFormField
+        form={form}
+        path={config.path}
+        label={config.title}
+        type={
+          config.dataType === "boolean" ? "binaryCheckbox" : config.dataType
+        }
+      />
+      {config.dataType !== "boolean" && (
+        <DuplicateFormField form={form} path={config.duplicatePath} />
+      )}
+    </div>
+  );
+}
+
+function DuplicateFormField<T extends FieldValues>({
+  form,
+  path,
+  hasMultipleColumns,
+}: {
+  form: UseFormReturn<T>;
+  path: Path<T>;
+  hasMultipleColumns?: boolean;
+}) {
+  return (
+    <FormField
+      control={form.control}
+      name={path}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-center inline">Duplicate</FormLabel>
+          <FormControl>
+            <Input {...field} type="checkbox" />
+          </FormControl>
+          {hasMultipleColumns ? <FormMessageAlt /> : <FormMessage />}
+        </FormItem>
+      )}
     />
   );
 }

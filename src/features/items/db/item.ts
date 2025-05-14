@@ -24,6 +24,7 @@ export async function insertItem(
       typeAttributeId: string;
       textValue?: string;
       numericValue?: number;
+      duplicate?: boolean;
     }[];
     itemImages?: string[];
     containerItems?: {

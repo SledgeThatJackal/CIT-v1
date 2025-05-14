@@ -26,6 +26,7 @@ const itemAttributes = z.object({
   typeAttributeId: z.string().uuid().min(1, "Required"),
   textValue: z.string().optional(),
   numericValue: z.number().optional(),
+  duplicate: z.boolean().optional(),
 });
 
 export const createItemSchema = z.object({
