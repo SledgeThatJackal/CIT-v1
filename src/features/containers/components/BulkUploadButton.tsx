@@ -9,10 +9,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { showPromiseToast } from "@/util/Toasts";
-import { Ban, File, FileUp, Upload } from "lucide-react";
+import { Ban, CircleHelp, File, FileUp, Upload } from "lucide-react";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 
 import "../style/container.css";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function BulkUploadButton() {
   const [open, setOpen] = useState(false);
@@ -81,7 +87,19 @@ function ZipDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload Zip File</DialogTitle>
+          <DialogTitle className="flex gap-2 items-center">
+            Upload Zip File
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CircleHelp className="text-yellow-500" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-accent-alternate text-white">
+                  <FileStructureText />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </DialogTitle>
         </DialogHeader>
         <div
           className="h-[15rem] border border-dashed rounded-lg relative text-sm"
@@ -139,5 +157,24 @@ function ZipDialog({
       </DialogContent>
       <DialogDescription />
     </Dialog>
+  );
+}
+
+function FileStructureText() {
+  return (
+    <div className="text-lg">
+      <p className="underline font-bold">Expected Directory Structure</p>
+      <pre>
+        {`
+    MyZipFile 
+    |-- barcodeId1 
+    | |-- image1.jpg
+    | |-- image2.png 
+    |-- barcodeId2  
+    |-- barcodeId3  
+    | |-- image3.gif
+      `}
+      </pre>
+    </div>
   );
 }
