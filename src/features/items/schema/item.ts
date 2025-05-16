@@ -25,8 +25,9 @@ const tags = z.array(z.string().uuid().min(1, "Required"));
 const itemAttributes = z.object({
   typeAttributeId: z.string().uuid().min(1, "Required"),
   textValue: z.string().optional(),
-  numericValue: z.number().optional(),
+  numericValue: z.string().optional(),
   duplicate: z.boolean().optional(),
+  dataType: z.string().optional(),
 });
 
 export const createItemSchema = z.object({

@@ -16,6 +16,15 @@ import {
 import { revalidateTagCache } from "@/features/tags/db/cache/tag";
 import { and, eq, inArray, max, notExists, sql } from "drizzle-orm";
 import { revalidateItemCache } from "./cache/item";
+import {
+  createContainerItems,
+  createDuplicateItemAttributes,
+  createItemAttributes,
+  createItemImages,
+  createItemTags,
+  getTotal,
+  processItemAttributes,
+} from "./helper";
 
 export async function insertItem(
   data: typeof ItemTable.$inferInsert & {
@@ -23,8 +32,9 @@ export async function insertItem(
     itemAttributes?: {
       typeAttributeId: string;
       textValue?: string;
-      numericValue?: number;
+      numericValue?: string;
       duplicate?: boolean;
+      dataType?: string;
     }[];
     itemImages?: string[];
     containerItems?: {
@@ -42,81 +52,51 @@ export async function insertItem(
     }
 
     if (data.tags && data.tags.length > 0) {
-      const tags = await trx
-        .insert(ItemTagTable)
-        .values(
-          data.tags.map((tag) => ({
-            itemId: newItem.id,
-            tagId: tag,
-          }))
-        )
-        .returning();
-
-      if (tags == null || tags.length !== data.tags.length) {
-        trx.rollback();
-        throw new Error("Failed to create tags");
-      }
+      createItemTags(
+        trx,
+        data.tags.length,
+        data.tags.map((tag) => ({
+          itemId: newItem.id,
+          tagId: tag,
+        }))
+      );
     }
 
     if (data.itemAttributes && data.itemAttributes.length > 0) {
-      const itemAttributes = await trx
-        .insert(ItemAttributeTable)
-        .values(
-          data.itemAttributes.map((itemAttribute) => ({
-            typeAttributeId: itemAttribute.typeAttributeId,
-            itemId: newItem.id,
-            textValue: itemAttribute.textValue ?? null,
-            numericValue: itemAttribute.numericValue ?? null,
-          }))
-        )
-        .returning();
-
-      if (
-        itemAttributes == null ||
-        itemAttributes.length !== data.itemAttributes.length
-      ) {
-        trx.rollback();
-        throw new Error("Failed to create attributes");
-      }
+      createItemAttributes(
+        trx,
+        data.itemAttributes.length,
+        data.itemAttributes.map((itemAttribute) => ({
+          typeAttributeId: itemAttribute.typeAttributeId,
+          itemId: newItem.id,
+          textValue: itemAttribute.textValue ?? null,
+          numericValue: Number(itemAttribute.numericValue) ?? null,
+        }))
+      );
     }
 
     if (data.containerItems && data.containerItems.length > 0) {
-      const containerItems = await trx
-        .insert(ContainerItemTable)
-        .values(
-          data.containerItems.map((containerItem) => ({
-            containerId: containerItem.containerId,
-            itemId: newItem.id,
-            quantity: containerItem.quantity,
-          }))
-        )
-        .returning();
-
-      if (
-        containerItems == null ||
-        containerItems.length !== data.containerItems.length
-      ) {
-        trx.rollback();
-        throw new Error("Failed to put items into their containers");
-      }
+      createContainerItems(
+        trx,
+        data.containerItems.length,
+        data.containerItems.map((containerItem) => ({
+          containerId: containerItem.containerId,
+          itemId: newItem.id,
+          quantity: containerItem.quantity,
+        }))
+      );
     }
 
     if (data.itemImages && data.itemImages.length > 0) {
-      const itemImages = await trx
-        .insert(ItemImageTable)
-        .values(
-          data.itemImages.map((imageId, index) => ({
-            imageId: imageId,
-            itemId: newItem.id,
-            imageOrder: index,
-          }))
-        )
-        .returning();
-
-      if (itemImages == null || itemImages.length !== data.itemImages.length) {
-        trx.rollback();
-        throw new Error("Failed to create images");
-      }
+      createItemImages(
+        trx,
+        data.itemImages.length,
+        data.itemImages.map((imageId, index) => ({
+          imageId: imageId,
+          itemId: newItem.id,
+          imageOrder: index,
+        }))
+      );
     }
 
     return newItem;
@@ -125,8 +105,111 @@ export async function insertItem(
   if (newItem == null) throw new Error("Failed to create item");
 
   revalidateItemCache(newItem.id);
+}
 
-  return newItem;
+export async function insertDuplicateItems(
+  data: typeof ItemTable.$inferInsert & {
+    tags?: string[];
+    itemAttributes?: {
+      typeAttributeId: string;
+      textValue?: string;
+      numericValue?: string;
+      duplicate?: boolean;
+      dataType?: string;
+    }[];
+    itemImages?: string[];
+    containerItems?: {
+      containerId: string;
+      quantity: number;
+    }[];
+  }
+) {
+  const newItems = await db.transaction(async (trx) => {
+    const attributeValues: {
+      dataType: string;
+      typeAttributeId: string;
+      values: string[];
+      index: number;
+    }[] = processItemAttributes(data.itemAttributes);
+
+    if (attributeValues.length === 0)
+      throw new Error("Attributes should be present");
+
+    const total = getTotal(attributeValues);
+
+    console.log(total);
+
+    const newItems = await trx
+      .insert(ItemTable)
+      .values([...Array(total)].map(() => data))
+      .returning({ id: ItemTable.id })
+      .then((row) => row.map((obj) => obj.id));
+
+    if (newItems == null) trx.rollback();
+
+    if (data.itemAttributes && data.itemAttributes.length > 0) {
+      const values = newItems
+        .map((itemId) =>
+          createDuplicateItemAttributes(attributeValues, 0, itemId, [])
+        )
+        .flat();
+
+      createItemAttributes(trx, data.itemAttributes.length, values);
+    }
+
+    if (data.tags && data.tags.length > 0) {
+      createItemTags(
+        trx,
+        data.tags.length,
+        data.tags
+          .map((tag) =>
+            newItems.map((itemId) => ({
+              itemId,
+              tagId: tag,
+            }))
+          )
+          .flat()
+      );
+    }
+
+    if (data.containerItems && data.containerItems.length > 0) {
+      createContainerItems(
+        trx,
+        data.containerItems.length,
+        data.containerItems
+          .map((containerItem) =>
+            newItems.map((itemId) => ({
+              containerId: containerItem.containerId,
+              itemId,
+              quantity: containerItem.quantity,
+            }))
+          )
+          .flat()
+      );
+    }
+
+    if (data.itemImages && data.itemImages.length > 0) {
+      createItemImages(
+        trx,
+        data.itemImages.length,
+        data.itemImages
+          .map((imageId, index) =>
+            newItems.map((itemId) => ({
+              imageId: imageId,
+              itemId,
+              imageOrder: index,
+            }))
+          )
+          .flat()
+      );
+    }
+
+    return newItems;
+  });
+
+  if (newItems == null) throw new Error("Failed to create item");
+
+  newItems.map((itemId) => revalidateItemCache(itemId));
 }
 
 export async function insertItemImages(id: string, imageIds: string[]) {

@@ -2,7 +2,7 @@ import { ItemTypeTable, TypeAttributeTable } from "@/drizzle/schema";
 import { CreateTypeAttributeType } from "../schema/type-attribute";
 import { db } from "@/drizzle/db";
 import { revalidateTypeCache } from "./cache/type";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { revalidateTypeAttributeCache } from "./cache/type-attribute";
 
 export async function insertType(
@@ -59,20 +59,31 @@ export async function updateType(
     }
 
     if (data.typeAttributes && data.typeAttributes.length > 0) {
-      const typeAttributes = await Promise.all(
-        data.typeAttributes.map((typeAttribute) => {
-          if (typeAttribute.id == undefined)
-            throw new Error("Failed to update type");
-
-          return trx
-            .update(TypeAttributeTable)
-            .set(typeAttribute)
-            .where(eq(TypeAttributeTable.id, typeAttribute.id))
-            .returning({
-              id: TypeAttributeTable.id,
-            });
+      const typeAttributes = await trx
+        .insert(TypeAttributeTable)
+        .values(
+          data.typeAttributes.map((typeAttribute, index) => ({
+            ...typeAttribute,
+            title: typeAttribute.title ?? "",
+            itemTypeId: updatedType.id,
+            displayOrder: typeAttribute.displayOrder ?? index + 1,
+            numericDefaultValue: typeAttribute.numericDefaultValue ?? null,
+            textDefaultValue: typeAttribute.textDefaultValue ?? null,
+          }))
+        )
+        .onConflictDoUpdate({
+          target: [TypeAttributeTable.id],
+          set: {
+            textDefaultValue: sql.raw(`excluded."textDefaultValue"`),
+            numericDefaultValue: sql.raw(`excluded."numericDefaultValue"`),
+            displayOrder: sql.raw(`excluded."displayOrder"`),
+            dataType: sql.raw(`excluded."dataType"`),
+            title: sql.raw(`excluded."title"`),
+          },
         })
-      );
+        .returning({
+          id: TypeAttributeTable.id,
+        });
 
       typeAttributes.flat().forEach(({ id: attributeId }) => {
         revalidateTypeAttributeCache(attributeId, id);

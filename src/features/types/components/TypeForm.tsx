@@ -60,6 +60,8 @@ export default function TypeForm({
   async function onSubmit(values: FormTypeType) {
     const action = type ? updateType.bind(null, type.id) : createType;
 
+    console.log(values);
+
     const promise = () => action(values);
 
     showPromiseToast(

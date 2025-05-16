@@ -93,6 +93,15 @@ export default function ItemForm({
           itemImages:
             item.itemImages?.map((itemImage) => itemImage.image.id) ?? [],
           tags: item.tags?.map((tag) => tag.id) ?? [],
+          itemAttributes: item.itemAttributes?.map((itemAttribute) => {
+            return {
+              ...itemAttribute,
+              numericValue: itemAttribute.numericValue
+                ? String(itemAttribute.numericValue)
+                : undefined,
+              dataType: undefined,
+            };
+          }),
         }
       : {
           name: "",
@@ -132,8 +141,8 @@ export default function ItemForm({
 
     showPromiseToast<{ message: string }>(
       () => action(values),
-      `Attempting to ${item ? "update" : "create"} item`,
-      clearForm
+      `Attempting to ${item ? "update" : "create"} item`
+      // clearForm
     );
   }
 
@@ -242,7 +251,8 @@ function ItemAttributeSection({
 
       return {
         typeAttributeId: attribute.id,
-        [`${path}Value`]: attribute[`${path}DefaultValue`],
+        [`${path}Value`]: String(attribute[`${path}DefaultValue`]),
+        dataType,
       };
     });
 

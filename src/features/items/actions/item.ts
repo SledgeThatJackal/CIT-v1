@@ -18,6 +18,7 @@ import {
   updateItemTags as updateItemTagsDb,
   updateContainerItems as updateContainerItemsDb,
   addItemImages as addItemImagesDb,
+  insertDuplicateItems,
 } from "../db/item";
 import { createItemSchema, CreateItemType } from "../schema/item";
 import {
@@ -36,10 +37,14 @@ export async function createItem(rawData: CreateItemType) {
   if (!success || !canCreateItem(await getCurrentUser()))
     return new Error("There was an error creating your item");
 
-  const item = await insertItem(data);
+  const hasDuplicate = data.itemAttributes?.some(
+    (itemAttribute) => itemAttribute.duplicate
+  );
+
+  await (hasDuplicate ? insertDuplicateItems(data) : insertItem(data));
 
   return {
-    message: `Successfully created your item: ${item.name}`,
+    message: `Successfully created your item`,
   };
 }
 

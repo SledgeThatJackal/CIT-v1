@@ -128,8 +128,8 @@ function NumberInput<T extends FieldValues>({
     <Input
       {...field}
       value={field.value ?? 0}
-      onChange={(e) => field.onChange(Number(e.target.value))}
-      type="number"
+      // onChange={(e) => field.onChange(Number(e.target.value))}
+      onChange={(e) => field.onChange(e.target.value)}
     />
   );
 }
