@@ -323,7 +323,9 @@ export async function updateItem(
     itemAttributes?: {
       typeAttributeId: string;
       textValue?: string;
-      numericValue?: number;
+      numericValue?: string;
+      duplicate?: boolean;
+      dataType?: string;
     }[];
     itemImages?: string[];
     containerItems?: {
@@ -387,7 +389,7 @@ export async function updateItem(
             typeAttributeId: itemAttribute.typeAttributeId,
             itemId: updatedItem.id,
             textValue: itemAttribute.textValue ?? null,
-            numericValue: itemAttribute.numericValue ?? null,
+            numericValue: Number(itemAttribute.numericValue) ?? null,
           }))
         )
         .onConflictDoUpdate({

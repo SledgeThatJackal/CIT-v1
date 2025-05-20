@@ -17,3 +17,6 @@ export function camelCaseToProperCase(str: string) {
 
   return words.reduce((acc, word) => `${acc} ${changeToProperCase(word)}`, "");
 }
+
+export const escapeRegExp = (str: string) =>
+  str.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");

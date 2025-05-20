@@ -141,8 +141,8 @@ export default function ItemForm({
 
     showPromiseToast<{ message: string }>(
       () => action(values),
-      `Attempting to ${item ? "update" : "create"} item`
-      // clearForm
+      `Attempting to ${item ? "update" : "create"} item`,
+      clearForm
     );
   }
 
@@ -272,7 +272,7 @@ function ItemAttributeSection({
           </HelpToolTip>
         </CardTitle>
       </CardHeader>
-      <CardContent className="overflow-y-auto max-h-[5vh]">
+      <CardContent className="overflow-y-auto max-h-[10vh] space-y-4">
         {typeWatch ? (
           <React.Fragment>
             {fields.map((field) => (
@@ -318,6 +318,7 @@ function ItemAttributeRow({
         type={
           config.dataType === "boolean" ? "binaryCheckbox" : config.dataType
         }
+        stringBased
       />
       {config.dataType !== "boolean" && (
         <DuplicateFormField form={form} path={config.duplicatePath} />

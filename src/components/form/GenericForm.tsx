@@ -9,7 +9,7 @@ import {
   FormMessage,
   FormMessageAlt,
 } from "@/components/ui/form";
-import { changeToProperCase } from "@/util/formatters";
+import { changeToProperCase, escapeRegExp } from "@/util/formatters";
 import React, { HTMLInputTypeAttribute, ReactNode, useState } from "react";
 import {
   ControllerRenderProps,
@@ -80,6 +80,7 @@ export function GenericFormField<T extends FieldValues>({
   type = "text",
   required = true,
   hasMultipleColumns = false,
+  stringBased = false,
 }: {
   form: UseFormReturn<T>;
   path: Path<T>;
@@ -87,6 +88,7 @@ export function GenericFormField<T extends FieldValues>({
   type?: HTMLInputTypeAttribute;
   required?: boolean;
   hasMultipleColumns?: boolean;
+  stringBased?: boolean;
 }) {
   function renderInput(
     field: ControllerRenderProps<T, Path<T>>,
@@ -94,7 +96,11 @@ export function GenericFormField<T extends FieldValues>({
   ) {
     switch (currentType) {
       case "number":
-        return <NumberInput field={field} />;
+        return stringBased ? (
+          <StringBasedNumberInput field={field} />
+        ) : (
+          <NumberInput field={field} />
+        );
       case "binaryCheckbox":
         return <BinaryCheckbox form={form} path={path} field={field} />;
       default:
@@ -128,8 +134,43 @@ function NumberInput<T extends FieldValues>({
     <Input
       {...field}
       value={field.value ?? 0}
-      // onChange={(e) => field.onChange(Number(e.target.value))}
-      onChange={(e) => field.onChange(e.target.value)}
+      onChange={(e) => field.onChange(Number(e.target.value))}
+      type="number"
+    />
+  );
+}
+
+function StringBasedNumberInput<T extends FieldValues>({
+  field,
+}: {
+  field: ControllerRenderProps<T, Path<T>>;
+}) {
+  const delimiter = "|";
+
+  function handleChange(value: string) {
+    const parts = value.split(delimiter);
+
+    if (parts.every((part) => /^-?\d*(\.\d*)?$/.test(part)))
+      field.onChange(value);
+  }
+
+  function handleBlur(value: string) {
+    const parts = value.split(delimiter);
+
+    const newValue = parts
+      .map((part) => (/^-?\d*(\.\d+)?$/.test(part) ? part : undefined))
+      .filter((part) => part !== undefined)
+      .join(delimiter);
+
+    field.onChange(newValue);
+  }
+
+  return (
+    <Input
+      {...field}
+      value={field.value ?? ""}
+      onChange={(e) => handleChange(e.target.value)}
+      onBlur={(e) => handleBlur(e.target.value)}
     />
   );
 }
