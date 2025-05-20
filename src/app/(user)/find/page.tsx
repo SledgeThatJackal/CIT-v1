@@ -13,7 +13,7 @@ export default async function FindPage() {
             <span className="ms-auto">{`Displaying {} out of {} images`}</span>
           </CardTitle>
           <SearchBar />
-          <CardContent className="grid grid-cols-14">
+          <CardContent className="grid grid-cols-14 p-0">
             <div className="bg-table-header p-2 rounded-xl text-center">
               <p>Barcode ID</p>
               <Image
