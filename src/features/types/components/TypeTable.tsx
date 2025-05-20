@@ -98,7 +98,7 @@ export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
                       ? typeAttribute.textDefaultValue
                       : typeAttribute.numericDefaultValue
                   }
-                ></DefaultValueCell>
+                />
                 <TableCell>
                   <ActionAlertDialog
                     action={deleteTypeAttribute.bind(null, typeAttribute.id)}
@@ -135,13 +135,21 @@ function DefaultValueCell({
 }) {
   switch (dataType) {
     case "boolean": {
-      return <TableCell>{value === 0 ? <Check /> : <X />}</TableCell>;
+      return (
+        <TableCell>
+          {value === 0 ? (
+            <Check className="text-green-700" />
+          ) : (
+            <X className="text-red-700" />
+          )}
+        </TableCell>
+      );
     }
     case "number": {
       return <TableCell>{value}</TableCell>;
     }
     default: {
-      <TableCell>{value}</TableCell>;
+      return <TableCell>{value}</TableCell>;
     }
   }
 }
