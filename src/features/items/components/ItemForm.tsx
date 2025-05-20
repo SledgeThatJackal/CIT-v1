@@ -41,6 +41,7 @@ import {
 } from "react-hook-form";
 import { createItem, updateItem } from "../actions/item";
 import { createItemSchema, CreateItemType } from "../schema/item";
+import { useSpecificItemSettings } from "@/features/settings/hooks/useItemSettings";
 
 export default function ItemForm({
   item,
@@ -228,6 +229,7 @@ function ItemAttributeSection({
   >({});
 
   const types = useTypes();
+  const delimiter = useSpecificItemSettings("itemDelimiter");
 
   useEffect(() => {
     const attributeData = types.find(
@@ -268,7 +270,10 @@ function ItemAttributeSection({
         <CardTitle className="flex gap-2 text-center items-center">
           Attributes
           <HelpToolTip>
-            <div className="p-1">Bunch of text</div>
+            <div className="p-1">
+              Use a {delimiter} to separate options, if you have duplicate
+              turned on.
+            </div>
           </HelpToolTip>
         </CardTitle>
       </CardHeader>

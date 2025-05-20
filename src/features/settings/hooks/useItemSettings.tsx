@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { SettingsType } from "../schema/settings";
+import { useSettings } from "./useSettings";
 
 export const useItemSettings = (settings: SettingsType[], keys: string[]) =>
   useMemo(
@@ -16,3 +17,6 @@ export const useItemSettings = (settings: SettingsType[], keys: string[]) =>
         .filter((el) => el !== undefined),
     [settings, keys]
   );
+
+export const useSpecificItemSettings = (key: string) =>
+  useItemSettings(useSettings(), [key])[0]?.value;
