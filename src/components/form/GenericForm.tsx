@@ -9,7 +9,9 @@ import {
   FormMessage,
   FormMessageAlt,
 } from "@/components/ui/form";
-import { changeToProperCase, escapeRegExp } from "@/util/formatters";
+import { cn } from "@/lib/utils";
+import { changeToProperCase } from "@/util/formatters";
+import { XIcon } from "lucide-react";
 import React, { HTMLInputTypeAttribute, ReactNode, useState } from "react";
 import {
   ControllerRenderProps,
@@ -31,8 +33,6 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { XIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export default function GenericForm<T extends FieldValues>({
   form,
