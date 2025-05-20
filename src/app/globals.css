@@ -53,6 +53,16 @@ body {
   --color-accent-alternate: rgb(61 68 77);
   --color-table-header: rgb(21 27 35);
   --color-navbar-background: rgb(1, 4, 9);
+  --color-accent-alternate-hover: color-mix(
+    in srgb,
+    var(--color-accent-alternate) 80%,
+    black
+  );
+  --color-accent-alternate-active: color-mix(
+    in srgb,
+    var(--color-accent-alternate) 60%,
+    black
+  );
 }
 
 @theme inline {
