@@ -2,7 +2,7 @@ export function changeToProperCase(str: string) {
   return str.charAt(0).toLocaleUpperCase() + str.slice(1);
 }
 
-export function camelCaseToProperCase(str: string) {
+export function camelCaseToProperCase(str: string, delimiter = "") {
   const words = [];
   let wordStart = 0;
 
@@ -15,7 +15,10 @@ export function camelCaseToProperCase(str: string) {
 
   words.push(str.slice(wordStart));
 
-  return words.reduce((acc, word) => `${acc} ${changeToProperCase(word)}`, "");
+  return words.reduce(
+    (acc, word) => `${acc} ${changeToProperCase(word)}`,
+    delimiter
+  );
 }
 
 export const escapeRegExp = (str: string) =>
