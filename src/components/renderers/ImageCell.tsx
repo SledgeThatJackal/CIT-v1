@@ -20,6 +20,7 @@ import {
   HoverCardTrigger,
 } from "../ui/hover-card";
 import { Button } from "../ui/button";
+import { AspectRatio } from "../ui/aspect-ratio";
 
 export default function ImageCell<
   T extends { id: string },
@@ -49,20 +50,25 @@ export default function ImageCell<
                 key={images[index]!.id}
                 src={`/api/uploads/images/${images[index]!.image.fileName}`}
                 alt={images[index]!.image.fileName}
-                width="100"
-                height="100"
-                className="w-10 h-10"
+                width={30}
+                height={30}
+                className="w-auto h-auto object-cover"
                 onClick={() => setIndex((prev) => (prev + 1) % images.length)}
               />
             </HoverCardTrigger>
             <HoverCardContent className="flex justify-center">
-              <Image
-                key={images[index]!.id}
-                src={`/api/uploads/images/${images[index]!.image.fileName}`}
-                alt={images[index]!.image.fileName}
-                width="200"
-                height="200"
-              />
+              <AspectRatio ratio={16 / 9} className="bg-muted">
+                <Image
+                  key={images[index]!.id}
+                  src={`/api/uploads/images/${images[index]!.image.fileName}`}
+                  alt={images[index]!.image.fileName}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="h-full w-full rounded object-cover"
+                />
+              </AspectRatio>
+
               <Badge className="text-[0.5rem] absolute bottom-[0.5rem] whitespace-nowrap">
                 {index + 1} / {images.length}
               </Badge>
