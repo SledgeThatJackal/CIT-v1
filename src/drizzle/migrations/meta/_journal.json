@@ -29,6 +29,20 @@
       "when": 1746131597782,
       "tag": "0003_bright_hiroim",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1747759769225,
+      "tag": "0004_image-view-find",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1747759793180,
+      "tag": "0005_default-settings",
+      "breakpoints": true
     }
   ]
 }
