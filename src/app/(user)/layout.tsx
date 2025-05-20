@@ -33,6 +33,7 @@ function Navbar() {
             <ActiveLink href="/tag">Tags</ActiveLink>
             <ActiveLink href="/type">Types</ActiveLink>
             <ActiveLink href="/settings">Settings</ActiveLink>
+            <ActiveLink href="/find">Find</ActiveLink>
           </SignedIn>
           <div className="size-8 self-center">
             <UserButton
