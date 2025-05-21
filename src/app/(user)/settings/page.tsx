@@ -15,7 +15,7 @@ export default async function Settings() {
   return (
     <div className="container mx-auto py-10">
       <PageHeader title="Settings"></PageHeader>
-      <VerticalTab>
+      <VerticalTab defaultValue="container">
         <VerticalTabList>
           <VerticalTabTrigger value="container">Container</VerticalTabTrigger>
           <VerticalTabTrigger value="item">Item</VerticalTabTrigger>
