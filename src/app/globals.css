@@ -63,6 +63,11 @@ body {
     var(--color-accent-alternate) 60%,
     black
   );
+  --color-table-header-hover: color-mix(
+    in srgb,
+    var(--color-table-header) 80%,
+    white
+  );
 }
 
 @theme inline {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../input";
 import { Label } from "../label";
 import { cn } from "@/lib/utils";
@@ -9,15 +9,30 @@ export default function FloatingLabel({
   id,
   label,
   className,
+  defaultValue,
+  onChange,
+  onKeyDown,
 }: {
   id: string;
   label: string;
   className?: string;
+  defaultValue?: string;
+  onChange?: (key: string, value: string) => void;
+  onKeyDown?: () => void;
 }) {
   const [isFocused, setIsFocused] = useState(false);
 
-  function handleBlur() {
-    setIsFocused(false);
+  function handleBlur(value: string) {
+    if (!value || value.length === 0) setIsFocused(false);
+  }
+
+  useEffect(() => {
+    if (defaultValue && defaultValue.length > 0) setIsFocused(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleKeyDown(key: string) {
+    if (key === "Enter") onKeyDown?.();
   }
 
   return (
@@ -36,7 +51,10 @@ export default function FloatingLabel({
         className={cn("rounded-none h-11", className)}
         id={id}
         onFocus={() => setIsFocused(true)}
-        onBlur={handleBlur}
+        onChange={(e) => onChange?.(id, e.target.value)}
+        onBlur={(e) => handleBlur(e.target.value)}
+        onKeyDown={(e) => handleKeyDown(e.key)}
+        defaultValue={defaultValue}
       />
     </div>
   );
