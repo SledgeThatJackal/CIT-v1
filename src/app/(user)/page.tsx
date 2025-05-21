@@ -23,13 +23,18 @@ export default async function Home() {
           {itemInfo.groupedTypes &&
             itemInfo.groupedTypes.map((groupedType) => (
               <p key={groupedType.type}>
-                {groupedType.count}{" "}
-                <Link
-                  href={`/item/${groupedType.type}`}
-                  className="underline text-blue-600"
-                >
-                  {groupedType.type}
-                </Link>
+                {groupedType.count}
+                {"- "}
+                {groupedType.type ? (
+                  <Link
+                    href={`/item/${groupedType.type}`}
+                    className="underline text-blue-600"
+                  >
+                    {groupedType.type}
+                  </Link>
+                ) : (
+                  <>None</>
+                )}
               </p>
             ))}
         </InfoCard>
