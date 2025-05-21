@@ -2,7 +2,7 @@ export * from "./schema/container";
 export * from "./schema/containerImage";
 export * from "./schema/containerItem";
 export * from "./schema/image";
-export * from "./schema/imageFind";
+export * from "./schema/image-find";
 export * from "./schema/item";
 export * from "./schema/itemAttribute";
 export * from "./schema/itemImage";

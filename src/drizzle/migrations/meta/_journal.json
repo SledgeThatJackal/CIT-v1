@@ -43,6 +43,13 @@
       "when": 1747759793180,
       "tag": "0005_default-settings",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1747836897112,
+      "tag": "0006_image-view-fix",
+      "breakpoints": true
     }
   ]
 }

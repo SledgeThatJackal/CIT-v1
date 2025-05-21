@@ -1,6 +1,6 @@
 {
-  "id": "d994cdc1-f55b-4724-ae9f-7e77dc741acb",
-  "prevId": "f0285412-76a8-4dcb-81b9-3aa50089df71",
+  "id": "a5638048-e37c-4947-bc38-a0e5640075c6",
+  "prevId": "6b3d51e8-a73f-4f2a-8204-ebe97dcae007",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -66,9 +66,13 @@
         "container_parent_id_fkey": {
           "name": "container_parent_id_fkey",
           "tableFrom": "containers",
-          "columnsFrom": ["parentId"],
+          "columnsFrom": [
+            "parentId"
+          ],
           "tableTo": "containers",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -77,7 +81,9 @@
       "uniqueConstraints": {
         "containers_barcodeId_unique": {
           "name": "containers_barcodeId_unique",
-          "columns": ["barcodeId"],
+          "columns": [
+            "barcodeId"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -134,18 +140,26 @@
         "container_images_containerId_containers_id_fk": {
           "name": "container_images_containerId_containers_id_fk",
           "tableFrom": "container_images",
-          "columnsFrom": ["containerId"],
+          "columnsFrom": [
+            "containerId"
+          ],
           "tableTo": "containers",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "container_images_imageId_images_id_fk": {
           "name": "container_images_imageId_images_id_fk",
           "tableFrom": "container_images",
-          "columnsFrom": ["imageId"],
+          "columnsFrom": [
+            "imageId"
+          ],
           "tableTo": "images",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -154,7 +168,10 @@
       "uniqueConstraints": {
         "container_images_containerId_imageId_unique": {
           "name": "container_images_containerId_imageId_unique",
-          "columns": ["containerId", "imageId"],
+          "columns": [
+            "containerId",
+            "imageId"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -197,18 +214,26 @@
         "container_items_containerId_containers_id_fk": {
           "name": "container_items_containerId_containers_id_fk",
           "tableFrom": "container_items",
-          "columnsFrom": ["containerId"],
+          "columnsFrom": [
+            "containerId"
+          ],
           "tableTo": "containers",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "container_items_itemId_items_id_fk": {
           "name": "container_items_itemId_items_id_fk",
           "tableFrom": "container_items",
-          "columnsFrom": ["itemId"],
+          "columnsFrom": [
+            "itemId"
+          ],
           "tableTo": "items",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -217,7 +242,10 @@
       "uniqueConstraints": {
         "container_items_containerId_itemId_unique": {
           "name": "container_items_containerId_itemId_unique",
-          "columns": ["containerId", "itemId"],
+          "columns": [
+            "containerId",
+            "itemId"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -263,7 +291,9 @@
       "uniqueConstraints": {
         "images_fileName_unique": {
           "name": "images_fileName_unique",
-          "columns": ["fileName"],
+          "columns": [
+            "fileName"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -326,9 +356,13 @@
         "items_itemTypeId_item_types_id_fk": {
           "name": "items_itemTypeId_item_types_id_fk",
           "tableFrom": "items",
-          "columnsFrom": ["itemTypeId"],
+          "columnsFrom": [
+            "itemTypeId"
+          ],
           "tableTo": "item_types",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -394,18 +428,26 @@
         "item_attributes_typeAttributeId_type_attributes_id_fk": {
           "name": "item_attributes_typeAttributeId_type_attributes_id_fk",
           "tableFrom": "item_attributes",
-          "columnsFrom": ["typeAttributeId"],
+          "columnsFrom": [
+            "typeAttributeId"
+          ],
           "tableTo": "type_attributes",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "item_attributes_itemId_items_id_fk": {
           "name": "item_attributes_itemId_items_id_fk",
           "tableFrom": "item_attributes",
-          "columnsFrom": ["itemId"],
+          "columnsFrom": [
+            "itemId"
+          ],
           "tableTo": "items",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -414,7 +456,10 @@
       "uniqueConstraints": {
         "item_attributes_typeAttributeId_itemId_unique": {
           "name": "item_attributes_typeAttributeId_itemId_unique",
-          "columns": ["typeAttributeId", "itemId"],
+          "columns": [
+            "typeAttributeId",
+            "itemId"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -471,18 +516,26 @@
         "item_images_itemId_items_id_fk": {
           "name": "item_images_itemId_items_id_fk",
           "tableFrom": "item_images",
-          "columnsFrom": ["itemId"],
+          "columnsFrom": [
+            "itemId"
+          ],
           "tableTo": "items",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "item_images_imageId_images_id_fk": {
           "name": "item_images_imageId_images_id_fk",
           "tableFrom": "item_images",
-          "columnsFrom": ["imageId"],
+          "columnsFrom": [
+            "imageId"
+          ],
           "tableTo": "images",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -491,7 +544,10 @@
       "uniqueConstraints": {
         "item_images_itemId_imageId_unique": {
           "name": "item_images_itemId_imageId_unique",
-          "columns": ["itemId", "imageId"],
+          "columns": [
+            "itemId",
+            "imageId"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -535,18 +591,26 @@
         "item_tags_itemId_items_id_fk": {
           "name": "item_tags_itemId_items_id_fk",
           "tableFrom": "item_tags",
-          "columnsFrom": ["itemId"],
+          "columnsFrom": [
+            "itemId"
+          ],
           "tableTo": "items",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "item_tags_tagId_tags_id_fk": {
           "name": "item_tags_tagId_tags_id_fk",
           "tableFrom": "item_tags",
-          "columnsFrom": ["tagId"],
+          "columnsFrom": [
+            "tagId"
+          ],
           "tableTo": "tags",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -554,7 +618,10 @@
       "compositePrimaryKeys": {
         "item_tags_itemId_tagId_pk": {
           "name": "item_tags_itemId_tagId_pk",
-          "columns": ["itemId", "tagId"]
+          "columns": [
+            "itemId",
+            "tagId"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -769,9 +836,13 @@
         "type_attributes_itemTypeId_item_types_id_fk": {
           "name": "type_attributes_itemTypeId_item_types_id_fk",
           "tableFrom": "type_attributes",
-          "columnsFrom": ["itemTypeId"],
+          "columnsFrom": [
+            "itemTypeId"
+          ],
           "tableTo": "item_types",
-          "columnsTo": ["id"],
+          "columnsTo": [
+            "id"
+          ],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -780,7 +851,10 @@
       "uniqueConstraints": {
         "type_attributes_itemTypeId_title_unique": {
           "name": "type_attributes_itemTypeId_title_unique",
-          "columns": ["itemTypeId", "title"],
+          "columns": [
+            "itemTypeId",
+            "title"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -858,7 +932,9 @@
       "uniqueConstraints": {
         "users_clerkUserId_unique": {
           "name": "users_clerkUserId_unique",
-          "columns": ["clerkUserId"],
+          "columns": [
+            "clerkUserId"
+          ],
           "nullsNotDistinct": false
         }
       },
@@ -871,12 +947,20 @@
     "public.type_attribute_data_type": {
       "name": "type_attribute_data_type",
       "schema": "public",
-      "values": ["string", "number", "boolean", "list"]
+      "values": [
+        "string",
+        "number",
+        "boolean",
+        "list"
+      ]
     },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": ["user", "admin"]
+      "values": [
+        "user",
+        "admin"
+      ]
     }
   },
   "schemas": {},
