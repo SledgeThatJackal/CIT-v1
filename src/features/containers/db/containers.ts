@@ -327,3 +327,12 @@ export async function deleteContainerImagesFromIds(
     revalidateContainerImageCache(id, containerId, imageId);
   });
 }
+
+export async function fetchIdFromBarcode(barcodeId: string) {
+  return await db.query.ContainerTable.findFirst({
+    where: eq(ContainerTable.barcodeId, barcodeId),
+    columns: {
+      id: true,
+    },
+  }).then((row) => row?.id);
+}

@@ -1,4 +1,4 @@
-import { DetailContainerType } from "@/app/(user)/container/detail/[containerId]/page";
+import { DetailContainerType } from "@/app/(user)/container/detail/[barcodeId]/page";
 import {
   BooleanSection,
   ContainerItemSection,

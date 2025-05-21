@@ -16,6 +16,7 @@ import { notFound } from "next/navigation";
 import { getContainers, getImages } from "../../page";
 import { ContainerContextProvider } from "@/features/containers/data/ContainerContextProvider";
 import ContainerDetailTab from "@/features/containers/components/ContainerDetailTab";
+import { fetchIdFromBarcode } from "@/features/containers/db/containers";
 
 export type DetailContainerType = {
   id: string;
@@ -49,10 +50,10 @@ export type DetailContainerType = {
 export default async function DetailPage({
   params,
 }: {
-  params: Promise<{ containerId: string }>;
+  params: Promise<{ barcodeId: string }>;
 }) {
-  const { containerId } = await params;
-  const container = await getContainer(containerId);
+  const { barcodeId } = await params;
+  const container = await getContainer(barcodeId);
 
   const images = await getImages();
   const containers = await getContainers();
@@ -85,8 +86,12 @@ export default async function DetailPage({
   );
 }
 
-async function getContainer(id: string) {
+async function getContainer(barcodeId: string) {
   "use cache";
+
+  const id = await fetchIdFromBarcode(barcodeId);
+
+  if (id == null) throw new Error("Provided barcode does not exist");
 
   cacheTag(getContainerIdTag(id));
 

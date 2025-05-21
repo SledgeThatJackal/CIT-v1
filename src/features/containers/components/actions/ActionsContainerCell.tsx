@@ -28,7 +28,9 @@ export default function ActionsContainerCell<S>({
       <ActionsMenu>
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => redirect(`/container/detail/${row.original.id}`)}
+          onSelect={() =>
+            redirect(`/container/detail/${row.original.barcodeId}`)
+          }
         >
           Details
         </DropdownMenuItem>
