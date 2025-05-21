@@ -1,5 +1,6 @@
 import ActiveLink from "@/components/ActiveLink";
 import { Button } from "@/components/ui/button";
+import { appVersion } from "@/lib/utils";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { ReactNode, Suspense } from "react";
@@ -52,6 +53,7 @@ function Navbar() {
             </Button>
           </SignedOut>
         </Suspense>
+        <div className="text-center self-center text-xs">v{appVersion}</div>
       </nav>
     </header>
   );
