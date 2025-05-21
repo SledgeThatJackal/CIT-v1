@@ -130,7 +130,7 @@ function ItemContainerItemSection(
               <div>
                 Name:{" "}
                 <Link
-                  href={`/container/detail/${containerItem.containerId}`}
+                  href={`/container/detail/${containerItem.container.barcodeId}`}
                   className="underline text-blue-500"
                 >
                   {containerItem.container.name}
