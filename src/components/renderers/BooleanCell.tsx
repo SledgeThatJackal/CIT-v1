@@ -20,7 +20,6 @@ export default function BooleanCell<T extends HasId>({
   getValue,
   row,
   column: { id },
-  table,
 }: CellContext<T, boolean>) {
   const [isEditing, setIsEditing] = useState(false);
   const initialValue = getValue();

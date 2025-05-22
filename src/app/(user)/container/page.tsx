@@ -11,12 +11,13 @@ import { asc } from "drizzle-orm";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 
-export default async function ContainerPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const filters = (await searchParams).filters;
+export default async function ContainerPage() {
+  // const filters = (await searchParams).filters;
+  //   {
+  //   searchParams,
+  // }: {
+  //   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  // }
 
   const containerData = await getContainers();
   const images = await getImages();
