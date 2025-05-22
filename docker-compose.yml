@@ -1,7 +1,17 @@
 services:
+  cit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
   db:
     image: postgres:17.0
-    hostname: localhost
     ports:
       - "5433:5432"
     environment:

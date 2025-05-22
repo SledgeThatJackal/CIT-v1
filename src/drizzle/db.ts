@@ -9,6 +9,6 @@ export const db = drizzle({
     user: env.DB_USER,
     database: env.DB_NAME,
     host: env.DB_HOST,
-    port: 5433,
+    port: 5432,
   },
 });
