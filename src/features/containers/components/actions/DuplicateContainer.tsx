@@ -7,5 +7,10 @@ export default function DuplicateContainer({
 }: {
   row: Row<ContainerType>;
 }) {
-  return <ContainerForm container={row.original} isDuplication />;
+  return (
+    <ContainerForm
+      container={{ ...row.original, barcodeId: "" }}
+      isDuplication
+    />
+  );
 }
