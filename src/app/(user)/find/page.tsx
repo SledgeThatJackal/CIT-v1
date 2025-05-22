@@ -12,7 +12,7 @@ import { Suspense } from "react";
 export default async function FindPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filters: { key: string; value: string }[] }>;
+  searchParams: Promise<{ [key: string]: string }>;
 }) {
   return (
     <div className="container mx-auto py-10">

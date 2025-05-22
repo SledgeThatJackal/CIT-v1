@@ -11,10 +11,8 @@ import { PgTransaction } from "drizzle-orm/pg-core";
 export async function createItemAttributes(
   trx: PgTransaction<
     NodePgQueryResultHKT,
-    typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema")
-    >
+    typeof import("@/drizzle/schema"),
+    ExtractTablesWithRelations<typeof import("@/drizzle/schema")>
   >,
   totalItemAttributes: number,
   values: {
@@ -39,10 +37,8 @@ export async function createItemAttributes(
 export async function createContainerItems(
   trx: PgTransaction<
     NodePgQueryResultHKT,
-    typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema")
-    >
+    typeof import("@/drizzle/schema"),
+    ExtractTablesWithRelations<typeof import("@/drizzle/schema")>
   >,
   containerItemsLength: number,
   values: {
@@ -66,10 +62,8 @@ export async function createContainerItems(
 export async function createItemImages(
   trx: PgTransaction<
     NodePgQueryResultHKT,
-    typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema")
-    >
+    typeof import("@/drizzle/schema"),
+    ExtractTablesWithRelations<typeof import("@/drizzle/schema")>
   >,
   itemImagesLength: number,
   values: {
@@ -90,10 +84,8 @@ export async function createItemImages(
 export async function createItemTags(
   trx: PgTransaction<
     NodePgQueryResultHKT,
-    typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema")
-    >
+    typeof import("@/drizzle/schema"),
+    ExtractTablesWithRelations<typeof import("@/drizzle/schema")>
   >,
   tagsLength: number,
   values: {

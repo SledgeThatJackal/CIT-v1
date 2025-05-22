@@ -8,6 +8,15 @@ export const parentContainerSchema = z.object({
   isArea: z.boolean(),
 });
 
+const containerItem = z.object({
+  id: z.string().uuid().min(1, "Required"),
+  itemId: z.string().uuid().min(1, "Required"),
+  quantity: z.number().positive(),
+  item: z.object({
+    name: z.string().min(1, "Required"),
+  }),
+});
+
 export const containerSchema = z.object({
   id: z.string().uuid().min(1, "Required"),
   name: z.string().min(1, "Required"),
@@ -16,6 +25,7 @@ export const containerSchema = z.object({
   parent: parentContainerSchema.nullable(),
   isArea: z.boolean(),
   containerImages: z.array(imageJoinSchema),
+  containerItems: z.array(containerItem),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

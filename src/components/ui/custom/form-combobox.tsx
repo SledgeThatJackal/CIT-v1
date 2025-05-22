@@ -2,7 +2,7 @@ import { RequiredIcon } from "@/components/table/RequiredIcon";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
-import { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form";
 import { Button } from "../button";
 import {
   Command,
@@ -63,9 +63,13 @@ export default function FormCombobox<FormType extends FieldValues>({
                         key={`combobox-${data.id}`}
                         value={data.name}
                         onSelect={() => {
-                          form.setValue(path, data.id, {
-                            shouldValidate: true,
-                          });
+                          form.setValue(
+                            path,
+                            data.id as PathValue<FormType, Path<FormType>>,
+                            {
+                              shouldValidate: true,
+                            }
+                          );
                         }}
                       >
                         {data.name}

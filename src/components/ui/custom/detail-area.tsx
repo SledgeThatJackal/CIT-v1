@@ -2,9 +2,7 @@
 import React from "react";
 import { ComponentType } from "react";
 
-type RowData = unknown | object | any[];
-
-export type DetailRowData<T = any, S = T[keyof T] | RowData> = {
+export type DetailRowData<T = any, S = any> = {
   getValue: () => S;
   data: T;
   row: {

@@ -25,7 +25,7 @@ export default function TagTable({
   tags: {
     id: string;
     name: string;
-    description?: string | null;
+    description?: string;
     color: string;
   }[];
 }) {

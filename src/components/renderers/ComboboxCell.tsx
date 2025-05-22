@@ -52,21 +52,22 @@ export default function ComboboxCell<TValue extends HasIdAndName>({
           <CommandList>
             <CommandEmpty>{emptyStr}</CommandEmpty>
             <CommandGroup>
-              {dataSet?.map((el) => (
-                <CommandItem
-                  key={`combobox-${el.id}`}
-                  value={el.id}
-                  onSelect={onSelect}
-                >
-                  {el.name}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      el.id === value?.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
+              {dataSet &&
+                dataSet.map((el) => (
+                  <CommandItem
+                    key={`combobox-${el.id}`}
+                    value={el.id ?? ""}
+                    onSelect={onSelect}
+                  >
+                    {el.name}
+                    <Check
+                      className={cn(
+                        "ml-auto",
+                        el.id === value?.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                ))}
             </CommandGroup>
           </CommandList>
         </Command>

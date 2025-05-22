@@ -15,7 +15,7 @@ import { ImageJoinType } from "@/features/images/schema/images";
 import { CheckIcon, XIcon } from "lucide-react";
 import { ReactNode } from "react";
 
-export function SimpleDataSection<TabData extends DetailRowData>({
+export function SimpleDataSection<TabData>({
   getValue,
   row: { id },
 }: DetailRowData<TabData, string>) {
@@ -71,7 +71,7 @@ export function ImageCarousel({ images }: { images?: ImageJoinType[] }) {
   );
 }
 
-export function BooleanSection<TabData extends DetailRowData>({
+export function BooleanSection<TabData>({
   getValue,
   row: { id },
 }: DetailRowData<TabData, boolean>) {
@@ -89,7 +89,7 @@ export function BooleanSection<TabData extends DetailRowData>({
   );
 }
 
-export function LinkSection<TabData extends DetailRowData>({
+export function LinkSection<TabData>({
   getValue,
   row: { id },
 }: DetailRowData<TabData, string>) {

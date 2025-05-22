@@ -114,10 +114,8 @@ export async function insertContainerImages(id: string, imageIds: string[]) {
 async function createContainerImages(
   trx: PgTransaction<
     NodePgQueryResultHKT,
-    typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/aland/Documents/cit_prototype/src/drizzle/schema")
-    >
+    typeof import("@/drizzle/schema"),
+    ExtractTablesWithRelations<typeof import("@/drizzle/schema")>
   >,
   id: string,
   imageIds: string[]

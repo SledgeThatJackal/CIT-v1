@@ -24,8 +24,13 @@ async function getTags() {
 
   cacheTag(getTagGlobalTag());
 
-  return await db.query.TagTable.findMany({
+  const rows = await db.query.TagTable.findMany({
     columns: { id: true, name: true, description: true, color: true },
     orderBy: (tags, { asc }) => [asc(tags.name)],
   });
+
+  return rows.map((row) => ({
+    ...row,
+    description: row.description ?? undefined,
+  }));
 }

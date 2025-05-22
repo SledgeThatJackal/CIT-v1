@@ -21,22 +21,7 @@ import { addItemImages } from "@/features/items/actions/item";
 const tabValues = ["select", "new", "existing"] as const;
 type TabType = (typeof tabValues)[number];
 
-export default function CreateItem({
-  row,
-}: {
-  row: Row<
-    ContainerType & {
-      containerItems: {
-        id: string;
-        itemId: string;
-        quantity: number;
-        item: {
-          name: string;
-        };
-      }[];
-    }
-  >;
-}) {
+export default function CreateItem({ row }: { row: Row<ContainerType> }) {
   const images = row.original.containerImages.map(
     (containerImage) => containerImage.image
   );
