@@ -34,7 +34,11 @@ export default async function Item({
 
   return (
     <div className="container mx-auto py-10">
-      <Suspense fallback={<div className="text-xl">No containers found</div>}>
+      <Suspense
+        fallback={
+          <div className="text-2xl font-bold text-center">No items found</div>
+        }
+      >
         <ItemContextProvider
           images={images}
           tags={tags}

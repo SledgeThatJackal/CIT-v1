@@ -23,7 +23,13 @@ export default async function ContainerPage({
 
   return (
     <div className="container mx-auto py-10">
-      <Suspense fallback={<div className="text-xl">No containers found</div>}>
+      <Suspense
+        fallback={
+          <div className="text-2xl font-bold text-center">
+            No containers found
+          </div>
+        }
+      >
         <ContainerContextProvider images={images} containers={containerData}>
           <PageHeader title="Containers">
             <div className="flex flex-row gap-2">
