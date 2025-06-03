@@ -27,7 +27,7 @@ export default async function ContainerPage() {
       <Suspense
         fallback={
           <div className="text-2xl font-bold text-center">
-            No containers found
+            No containers found.
           </div>
         }
       >
