@@ -20,7 +20,10 @@ export default async function RootLayout({
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ClerkProvider>
+      <ClerkProvider
+        signInFallbackRedirectUrl="/sign-up"
+        signUpFallbackRedirectUrl="/sign-in"
+      >
         <html lang="en">
           <body className="antialiased">
             <SettingsProvider settings={settings}>{children}</SettingsProvider>
