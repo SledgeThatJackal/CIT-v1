@@ -1,0 +1,7 @@
+.tagBadge {
+  background-color: var(--bg);
+}
+
+.tagBadge:hover {
+  background-color: var(--bg-hover);
+}

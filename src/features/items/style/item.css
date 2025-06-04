@@ -1,0 +1,16 @@
+.itemOption {
+  background-color: var(--color-accent-alternate);
+}
+
+.itemOption:hover:not(.selected) {
+  background-color: color-mix(in srgb, var(--color-accent-alternate), black);
+}
+
+.selected {
+  background-color: color-mix(
+    in srgb,
+    var(--color-accent-alternate) 60%,
+    var(--color-blue-950)
+  );
+  cursor: default;
+}
