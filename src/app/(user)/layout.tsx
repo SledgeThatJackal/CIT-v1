@@ -49,7 +49,11 @@ function Navbar() {
         </Suspense>
         <Suspense>
           <SignedOut>
-            <Button className="self-center" asChild>
+            <Button
+              className="self-center ms-auto hover:cursor-pointer"
+              variant="secondary"
+              asChild
+            >
               <SignInButton />
             </Button>
           </SignedOut>
