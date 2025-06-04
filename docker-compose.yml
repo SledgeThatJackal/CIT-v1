@@ -11,15 +11,12 @@ services:
       - NODE_ENV=production
     restart: unless-stopped
   db:
+    env_file:
+      - .env.compose
     build:
       context: ./docker-postgres
     ports:
       - "5434:5432"
-    environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_DB=${DB_NAME}
-      - BACKUPS_PATH=${BACKUPS_PATH}
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:
