@@ -21,7 +21,7 @@ export default async function RootLayout({
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ClerkProvider
-        signInFallbackRedirectUrl="/sign-up"
+        signInFallbackRedirectUrl="/"
         signUpFallbackRedirectUrl="/sign-in"
       >
         <html lang="en">
