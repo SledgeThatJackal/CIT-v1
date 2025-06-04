@@ -6,8 +6,23 @@ import ImageThumbnail from "@/features/images/components/ImageThumbnail";
 import { getImageGlobalTag } from "@/features/images/db/cache/images";
 import { count, eq, like, sql, and } from "drizzle-orm";
 import { QueryBuilder } from "drizzle-orm/pg-core";
+import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
+
+type Props = {
+  searchParams: Promise<{ [key: string]: string }>;
+};
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const { total } = await getImages(await searchParams);
+
+  return {
+    title: `Image Find | ${total} Images`,
+  };
+}
 
 export default async function FindPage({
   searchParams,

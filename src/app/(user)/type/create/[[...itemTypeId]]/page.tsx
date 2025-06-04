@@ -4,8 +4,26 @@ import { db } from "@/drizzle/db";
 import { TypeAttributeDataType } from "@/drizzle/schema";
 import ClientWrapper from "@/features/types/components/Wrapper";
 import { getTypeIdTag } from "@/features/types/db/cache/type";
+import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import Link from "next/link";
+
+type Props = {
+  params: Promise<{ itemTypeId?: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { itemTypeId } = await params;
+  const type = await getType(itemTypeId?.[0]);
+
+  const title =
+    type !== undefined ? `Updating ${type.name}` : "Creating New Type";
+
+  return {
+    title,
+  };
+}
 
 export default async function TypeCreate({
   params,

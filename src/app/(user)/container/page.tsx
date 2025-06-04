@@ -8,17 +8,19 @@ import { ContainerContextProvider } from "@/features/containers/data/ContainerCo
 import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
 import { getImageGlobalTag } from "@/features/images/db/cache/images";
 import { asc } from "drizzle-orm";
+import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 
-export default async function ContainerPage() {
-  // const filters = (await searchParams).filters;
-  //   {
-  //   searchParams,
-  // }: {
-  //   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-  // }
+export async function generateMetadata(): Promise<Metadata> {
+  const total = (await getContainers()).length;
 
+  return {
+    title: `Container Table | ${total} Container${total !== 1 ? "s" : ""}`,
+  };
+}
+
+export default async function ContainerPage() {
   const containerData = await getContainers();
   const images = await getImages();
 

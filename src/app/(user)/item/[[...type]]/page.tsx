@@ -14,10 +14,31 @@ import { ItemContextProvider } from "@/features/items/data/ItemContextProvider";
 import { getItemGlobalTag } from "@/features/items/db/cache/item";
 import { getTagGlobalTag } from "@/features/tags/db/cache/tag";
 import { SimpleTypeSchema } from "@/features/types/schema/type";
-import { asc, eq } from "drizzle-orm";
+import { asc, count, eq } from "drizzle-orm";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 import { getImages } from "../../container/page";
+import { Metadata } from "next";
+
+type Props = {
+  params: Promise<{ type?: string[] }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const type = (await params).type?.[0];
+
+  const total = await getItemTotal(type);
+
+  const title = `${
+    type !== undefined ? type + " Table" : "Item Table"
+  } | ${total} Items`;
+
+  return {
+    title,
+    description: "A table display either all or specific items",
+  };
+}
 
 export default async function Item({
   params,
@@ -50,6 +71,18 @@ export default async function Item({
       </Suspense>
     </div>
   );
+}
+
+async function getItemTotal(type?: string) {
+  "use cache";
+
+  cacheTag(getItemGlobalTag());
+
+  return await db
+    .select({ count: count() })
+    .from(ItemTable)
+    .where(type ? eq(ItemTable.itemTypeId, type) : undefined)
+    .then((res) => res[0]?.count ?? 0);
 }
 
 async function getItems(type?: string) {

@@ -9,7 +9,12 @@ import { ContainerTab } from "@/features/settings/components/ContainerTab";
 import ItemTab from "@/features/settings/components/ItemTab";
 import { TagTab } from "@/features/settings/components/TagTab";
 import { TypeTab } from "@/features/settings/components/TypeTab";
+import { Metadata } from "next";
 import React from "react";
+
+export const metadata: Metadata = {
+  title: "Settings",
+};
 
 export default async function Settings() {
   return (

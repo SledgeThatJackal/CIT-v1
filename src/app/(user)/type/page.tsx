@@ -5,8 +5,17 @@ import { ItemTypeTable } from "@/drizzle/schema";
 import TypeTable from "@/features/types/components/TypeTable";
 import { getTypeGlobalTag } from "@/features/types/db/cache/type";
 import { DetailedTypeSchema } from "@/features/types/schema/type";
+import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import Link from "next/link";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const total = (await getTypes()).length;
+
+  return {
+    title: ` | ${total} Type${total !== 1 ? "s" : ""}`,
+  };
+}
 
 export default async function Type() {
   const types = await getTypes();

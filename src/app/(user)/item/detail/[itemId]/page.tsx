@@ -17,6 +17,23 @@ import { notFound } from "next/navigation";
 import { getContainers, getTags, getTypes } from "../../[[...type]]/page";
 import { ItemContextProvider } from "@/features/items/data/ItemContextProvider";
 import ItemDetailTab from "@/features/items/components/ItemDetailTab";
+import { Metadata } from "next";
+
+type Props = {
+  params: Promise<{ itemId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { itemId } = await params;
+
+  const item = await getItem(itemId);
+
+  return {
+    title: item.name,
+    description: item.description,
+  };
+}
 
 export default async function DetailPage({
   params,

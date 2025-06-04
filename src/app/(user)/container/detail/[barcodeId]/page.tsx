@@ -17,6 +17,22 @@ import { getContainers, getImages } from "../../page";
 import { ContainerContextProvider } from "@/features/containers/data/ContainerContextProvider";
 import ContainerDetailTab from "@/features/containers/components/ContainerDetailTab";
 import { fetchIdFromBarcode } from "@/features/containers/db/containers";
+import { Metadata } from "next";
+
+type Props = {
+  params: Promise<{ barcodeId: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { barcodeId } = await params;
+
+  const container = await getContainer(barcodeId);
+
+  return {
+    title: container.name,
+    description: container.description,
+  };
+}
 
 export type DetailContainerType = {
   id: string;

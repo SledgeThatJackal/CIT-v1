@@ -3,7 +3,16 @@ import { db } from "@/drizzle/db";
 import CreateTagButton from "@/features/tags/components/CreateTagButton";
 import TagTable from "@/features/tags/components/TagTable";
 import { getTagGlobalTag } from "@/features/tags/db/cache/tag";
+import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const total = (await getTags()).length;
+
+  return {
+    title: `Tags | ${total} Tag${total !== 1 ? "s" : ""}`,
+  };
+}
 
 export default async function Tag() {
   const tags = await getTags();
