@@ -20,7 +20,7 @@ import {
 import { changeToProperCase } from "@/util/formatters";
 import { Check, ListFilter, X } from "lucide-react";
 import Link from "next/link";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { DetailedTypeSchema } from "../schema/type";
 import { TypeAttributeDataType } from "@/drizzle/schema";
 import { ActionAlertDialog } from "@/components/ActionAlertDialog";
@@ -28,10 +28,30 @@ import { deleteTypeAttribute } from "../actions/type-attribute";
 import TrashButton from "@/components/ui/custom/trash-button";
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { deleteType } from "../actions/type";
+import { usePathname, useRouter } from "next/navigation";
 
-export default function TypeTable({ types }: { types: DetailedTypeSchema[] }) {
-  const [index, setIndex] = useState(0);
+export default function TypeTable({
+  types,
+  initialIndex,
+}: {
+  types: DetailedTypeSchema[];
+  initialIndex: number;
+}) {
+  const [index, setIndex] = useState(initialIndex);
   const alertButton = useRef<HTMLButtonElement>(null);
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const newPath = `/type/${types[index]?.name ?? ""}`;
+
+    if (pathname !== newPath) {
+      router.replace(newPath);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
   return (
     <React.Fragment>
