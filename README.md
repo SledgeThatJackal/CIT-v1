@@ -1,4 +1,4 @@
-# CIT
+# CIT-v1
 
 This is the complete rewrite of CIT-v0, using Next.JS instead of Spring boot. 
 
@@ -14,11 +14,11 @@ v1.0.0
 - Implemented Toasts for successful and unsuccessful actions
 
 v0.9.0
-- Home
-- Containers
-- Items
-- Tags
-- Types
-- Find Image
-- Reports
-- Settings
+- Home Page
+- Containers Page
+- Items Page
+- Tags Page
+- Types Page
+- Find Image Page
+- Reports Page
+- Settings Page
