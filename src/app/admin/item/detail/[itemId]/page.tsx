@@ -1,4 +1,4 @@
-import { getImages } from "@/app/(user)/container/page";
+import { getImages } from "@/app/admin/container/page";
 import DetailTabs from "@/components/detail/DetailTabs";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -15,11 +15,14 @@ import {
 import { ItemType } from "../schema/item";
 import CreateItemButton from "./CreateItemButton";
 import { getColumns } from "../data/useTableData";
+import { useRole } from "@/features/roles/hooks/useRoles";
 
 export default function ItemDataTable({
   items,
   type,
+  url = "/item",
 }: {
+  url?: string;
   items: ItemType[];
   type?: string;
 }) {
@@ -33,21 +36,23 @@ export default function ItemDataTable({
   const types = useTypes();
 
   useEffect(() => {
-    const newPath = value !== undefined ? `/item/${value}` : "/item";
+    const newPath = value !== undefined ? `${url}/${value}` : url;
 
     if (pathname !== newPath) {
       router.push(newPath);
     }
-  }, [pathname, router, value]);
+  }, [pathname, router, value, url]);
 
   const columns = getColumns(items[0], type);
+
+  const { canCreate } = useRole();
 
   return (
     <React.Fragment>
       <PageHeader title="Items">
         <div className="flex flex-row gap-2">
           <FilterButton options={types} value={value} setValue={setValue} />
-          <CreateItemButton />
+          {canCreate && <CreateItemButton />}
         </div>
       </PageHeader>
       <DataTable
