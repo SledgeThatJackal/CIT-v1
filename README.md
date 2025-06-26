@@ -2,6 +2,9 @@
 
 This is the complete rewrite of CIT-v0, using Next.JS instead of Spring boot. 
 
+v1.0.1
+- Added suspense to all dynamic pages to fix the issues with dnyamicIO causing the compile to fail
+
 v1.0.0
 - New Technologies
   - Clerk
