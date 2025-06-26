@@ -1,19 +1,23 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/drizzle/db";
 import { TypeAttributeDataType } from "@/drizzle/schema";
-import ClientWrapper from "@/features/types/components/Wrapper";
+import TypeForm from "@/features/types/components/TypeForm";
 import { getTypeIdTag } from "@/features/types/db/cache/type";
 import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import Link from "next/link";
+import { Suspense } from "react";
 
-type Props = {
+type MetadataProps = {
   params: Promise<{ itemTypeId?: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MetadataProps): Promise<Metadata> {
   const { itemTypeId } = await params;
   const type = await getType(itemTypeId?.[0]);
 
@@ -25,14 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function TypeCreate({
-  params,
-}: {
+type Props = {
   params: Promise<{ itemTypeId?: string }>;
-}) {
-  const { itemTypeId } = await params;
-  const type = await getType(itemTypeId?.[0]);
+};
 
+export default function TypeCreate(props: Props) {
   return (
     <div className="container mx-auto py-10">
       <PageHeader title="Type Creation">
@@ -41,7 +42,31 @@ export default async function TypeCreate({
         </Button>
       </PageHeader>
       <div className="relative overflow-hidden">
-        <ClientWrapper type={type} />
+        <Suspense fallback={<TypeFormFallback />}>
+          <SuspendedPage {...props} />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+
+async function SuspendedPage({ params }: Props) {
+  const { itemTypeId } = await params;
+  const type = await getType(itemTypeId?.[0]);
+
+  return <TypeForm type={type} />;
+}
+
+function TypeFormFallback() {
+  return (
+    <div className="flex flex-col space-y-8">
+      <div>
+        <Skeleton className="h-4 mb-2 w-20" />
+        <Skeleton className="h-9 w-auto" />
+      </div>
+      <div className="space-y-8">
+        <Skeleton className="h-96 max-h-[50vh] w-auto rounded-xl" />
+        <Skeleton className="ms-auto h-9 w-16" />
       </div>
     </div>
   );

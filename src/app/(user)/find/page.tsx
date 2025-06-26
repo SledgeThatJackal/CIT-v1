@@ -10,13 +10,13 @@ import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 
-type Props = {
+type MetadataProps = {
   searchParams: Promise<{ [key: string]: string }>;
 };
 
 export async function generateMetadata({
   searchParams,
-}: Props): Promise<Metadata> {
+}: MetadataProps): Promise<Metadata> {
   const { total } = await getImages(await searchParams);
 
   return {
@@ -24,29 +24,25 @@ export async function generateMetadata({
   };
 }
 
-export default async function FindPage({
-  searchParams,
-}: {
+type Props = {
   searchParams: Promise<{ [key: string]: string }>;
-}) {
+};
+
+export default function FindPage(props: Props) {
   return (
     <div className="container mx-auto py-10">
       <Card>
         <Suspense
           fallback={<CardTitle className="text-xl">No images found</CardTitle>}
         >
-          <ImageFindContent searchParams={searchParams} />
+          <SuspendedPage {...props} />
         </Suspense>
       </Card>
     </div>
   );
 }
 
-async function ImageFindContent({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string }>;
-}) {
+async function SuspendedPage({ searchParams }: Props) {
   const params = await searchParams;
 
   const { rows: images, total } = await getImages(params);

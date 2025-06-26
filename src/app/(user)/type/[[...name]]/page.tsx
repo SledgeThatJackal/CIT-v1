@@ -8,12 +8,15 @@ import { DetailedTypeSchema } from "@/features/types/schema/type";
 import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import Link from "next/link";
+import { Suspense } from "react";
 
-type Props = {
+type MetadataProps = {
   params: Promise<{ name?: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MetadataProps): Promise<Metadata> {
   const { name } = await params;
 
   const total = (await getTypes()).length;
@@ -25,11 +28,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Type({
-  params,
-}: {
+type Props = {
   params: Promise<{ name?: string }>;
-}) {
+};
+
+export default function Type(props: Props) {
+  return (
+    <div className="container mx-auto py-10">
+      <PageHeader title="Types">
+        <Button variant="secondary" asChild>
+          <Link href="/type/create/">New Type</Link>
+        </Button>
+      </PageHeader>
+      <Suspense>
+        <SuspendedPage {...props} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function SuspendedPage({ params }: Props) {
   const types = await getTypes();
   const { name } = await params;
 
@@ -38,16 +56,7 @@ export default async function Type({
     types.findIndex((type) => type.name === name)
   );
 
-  return (
-    <div className="container mx-auto py-10">
-      <PageHeader title="Types">
-        <Button variant="secondary" asChild>
-          <Link href="/type/create/">New Type</Link>
-        </Button>
-      </PageHeader>
-      <TypeTable types={types} initialIndex={initialIndex} />
-    </div>
-  );
+  return <TypeTable types={types} initialIndex={initialIndex} />;
 }
 
 async function getTypes() {

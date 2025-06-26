@@ -11,13 +11,11 @@ export const metadata: Metadata = {
   description: "Spatial Organizational App",
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const settings = await getSettings();
+type Props = {
+  readonly children: React.ReactNode;
+};
 
+export default async function RootLayout(props: Props) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ClerkProvider
@@ -26,11 +24,17 @@ export default async function RootLayout({
       >
         <html lang="en">
           <body className="antialiased">
-            <SettingsProvider settings={settings}>{children}</SettingsProvider>
+            <SuspendedPage {...props} />
             <Toaster richColors expand />
           </body>
         </html>
       </ClerkProvider>
     </Suspense>
   );
+}
+
+async function SuspendedPage({ children }: Props) {
+  const settings = await getSettings();
+
+  return <SettingsProvider settings={settings}>{children}</SettingsProvider>;
 }

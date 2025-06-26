@@ -5,6 +5,7 @@ import TagTable from "@/features/tags/components/TagTable";
 import { getTagGlobalTag } from "@/features/tags/db/cache/tag";
 import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+import { Suspense } from "react";
 
 export async function generateMetadata(): Promise<Metadata> {
   const total = (await getTags()).length;
@@ -14,18 +15,24 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Tag() {
-  const tags = await getTags();
-
+export default function Tag() {
   return (
     <div className="container mx-auto py-10">
       <PageHeader title="Tags">
         <CreateTagButton />
       </PageHeader>
 
-      <TagTable tags={tags} />
+      <Suspense>
+        <SuspendedPage />
+      </Suspense>
     </div>
   );
+}
+
+async function SuspendedPage() {
+  const tags = await getTags();
+
+  return <TagTable tags={tags} />;
 }
 
 async function getTags() {

@@ -18,12 +18,15 @@ import { ContainerContextProvider } from "@/features/containers/data/ContainerCo
 import ContainerDetailTab from "@/features/containers/components/ContainerDetailTab";
 import { fetchIdFromBarcode } from "@/features/containers/db/containers";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
-type Props = {
+type MetadataProps = {
   params: Promise<{ barcodeId: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MetadataProps): Promise<Metadata> {
   const { barcodeId } = await params;
 
   const container = await getContainer(barcodeId);
@@ -63,11 +66,21 @@ export type DetailContainerType = {
   } | null;
 };
 
-export default async function DetailPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ barcodeId: string }>;
-}) {
+};
+
+export default function DetailPage(props: Props) {
+  return (
+    <div className="container mx-auto py-10">
+      <Suspense>
+        <SuspendedPage {...props} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function SuspendedPage({ params }: Props) {
   const { barcodeId } = await params;
   const container = await getContainer(barcodeId);
 
@@ -77,7 +90,7 @@ export default async function DetailPage({
   const values = ["details", "edit"] as const;
 
   return (
-    <div className="container mx-auto py-10">
+    <>
       <PageHeader title={container.name} />
       <DetailTabs values={values}>
         <TabsContent value={values[0]}>
@@ -98,7 +111,7 @@ export default async function DetailPage({
           </Card>
         </TabsContent>
       </DetailTabs>
-    </div>
+    </>
   );
 }
 

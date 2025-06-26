@@ -20,12 +20,14 @@ import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 import { getImages } from "../../container/page";
 
-type Props = {
+type MetadataProps = {
   params: Promise<{ type?: string[] }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MetadataProps): Promise<Metadata> {
   const type = (await params).type?.[0];
 
   const total = (await getItems(type)).length;
@@ -40,11 +42,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Item({
-  params,
-}: {
+type Props = {
   params: Promise<{ type?: string[] }>;
-}) {
+};
+
+export default function Item(props: Props) {
+  return (
+    <div className="container mx-auto py-10">
+      <Suspense
+        fallback={
+          <div className="text-2xl font-bold text-center">No items found</div>
+        }
+      >
+        <SuspendedPage {...props} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function SuspendedPage({ params }: Props) {
   const type = (await params).type?.[0];
 
   const itemData = await getItems(type);
@@ -54,22 +70,14 @@ export default async function Item({
   const containers = await getContainers();
 
   return (
-    <div className="container mx-auto py-10">
-      <Suspense
-        fallback={
-          <div className="text-2xl font-bold text-center">No items found</div>
-        }
-      >
-        <ItemContextProvider
-          images={images}
-          tags={tags}
-          types={types}
-          containers={containers}
-        >
-          <ItemDataTable items={itemData} type={type} />
-        </ItemContextProvider>
-      </Suspense>
-    </div>
+    <ItemContextProvider
+      images={images}
+      tags={tags}
+      types={types}
+      containers={containers}
+    >
+      <ItemDataTable items={itemData} type={type} />
+    </ItemContextProvider>
   );
 }
 
