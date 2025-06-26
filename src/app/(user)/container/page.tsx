@@ -20,10 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ContainerPage() {
-  const containerData = await getContainers();
-  const images = await getImages();
-
+export default function ContainerPage() {
   return (
     <div className="container mx-auto py-10">
       <Suspense
@@ -33,17 +30,26 @@ export default async function ContainerPage() {
           </div>
         }
       >
-        <ContainerContextProvider images={images} containers={containerData}>
-          <PageHeader title="Containers">
-            <div className="flex flex-row gap-2">
-              <BulkUploadButton />
-              <CreateContainerButton />
-            </div>
-          </PageHeader>
-          <ContainerDataTable containers={containerData} />
-        </ContainerContextProvider>
+        <SuspendedPage />
       </Suspense>
     </div>
+  );
+}
+
+async function SuspendedPage() {
+  const containerData = await getContainers();
+  const images = await getImages();
+
+  return (
+    <ContainerContextProvider images={images} containers={containerData}>
+      <PageHeader title="Containers">
+        <div className="flex flex-row gap-2">
+          <BulkUploadButton />
+          <CreateContainerButton />
+        </div>
+      </PageHeader>
+      <ContainerDataTable containers={containerData} />
+    </ContainerContextProvider>
   );
 }
 

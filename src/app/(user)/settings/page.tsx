@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Settings",
 };
 
-export default async function Settings() {
+export default function Settings() {
   return (
     <div className="container mx-auto py-10">
       <PageHeader title="Settings"></PageHeader>
