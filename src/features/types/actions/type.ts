@@ -1,6 +1,6 @@
 "use server";
 
-import { getCurrentUser } from "@/services/clerk";
+import { getCurrentUser } from "@/services/clerk/clerk";
 import {
   deleteType as deleteTypeDb,
   insertType,
