@@ -18,13 +18,9 @@ export async function generateMetadata({
   params,
 }: MetadataProps): Promise<Metadata> {
   const { name } = await params;
-
-  const total = (await getTypes()).length;
-
   return {
-    title: `${name !== undefined ? name : "Types"} | ${total} Type${
-      total !== 1 ? "s" : ""
-    }`,
+    title: `${name !== undefined ? name : "Types"}
+    `,
   };
 }
 

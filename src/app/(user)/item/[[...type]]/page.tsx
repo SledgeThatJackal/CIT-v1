@@ -30,11 +30,7 @@ export async function generateMetadata({
 }: MetadataProps): Promise<Metadata> {
   const type = (await params).type?.[0];
 
-  const total = (await getItems(type)).length;
-
-  const title = `${
-    type !== undefined ? type + " Table" : "Item Table"
-  } | ${total} Items`;
+  const title = `${type !== undefined ? type + " Table" : "Item Table"}`;
 
   return {
     title,

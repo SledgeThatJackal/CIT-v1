@@ -7,13 +7,9 @@ import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const total = (await getTags()).length;
-
-  return {
-    title: `Tags | ${total} Tag${total !== 1 ? "s" : ""}`,
-  };
-}
+export const metadata: Metadata = {
+  title: "Tags",
+};
 
 export default function Tag() {
   return (
