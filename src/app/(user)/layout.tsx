@@ -1,65 +1,122 @@
-import ActiveLink from "@/components/ActiveLink";
-import { Button } from "@/components/ui/button";
-import { appVersion } from "@/lib/utils";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import Link from "next/link";
-import { ReactNode, Suspense } from "react";
+import { Navbar } from "@/components/navbar/Navbar";
+import NavbarGroup from "@/components/navbar/NavbarGroup";
+import { db } from "@/drizzle/db";
+import {
+  ContainerTable,
+  ItemTable,
+  ItemTypeTable,
+  TagTable,
+} from "@/drizzle/schema";
+import { getContainerGlobalTag } from "@/features/containers/db/cache/containers";
+import { getItemGlobalTag } from "@/features/items/db/cache/item";
+import { getTagGlobalTag } from "@/features/tags/db/cache/tag";
+import { getTypeGlobalTag } from "@/features/types/db/cache/type";
+import NavbarUserButton from "@/features/users/components/NavbarUserButton";
+import {
+  ClipboardListIcon,
+  ContainerIcon,
+  FileTextIcon,
+  SearchIcon,
+  ShoppingBagIcon,
+  TagIcon,
+  TypeIcon,
+} from "lucide-react";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+import { Suspense } from "react";
 
-export default function UserLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
+type Props = Readonly<{ children: React.ReactNode; sidebar: React.ReactNode }>;
+
+export default function UserLayout(props: Props) {
+  return (
+    <Suspense>
+      <SuspendedComponent {...props} />
+    </Suspense>
+  );
+}
+
+async function SuspendedComponent({ children, sidebar }: Props) {
+  const containerTotal = await getContainerTotal();
+  const itemTotal = await getItemTotal();
+  const tagTotal = await getTagTotal();
+  const typeTotal = await getTypeTotal();
+
   return (
     <>
-      <Navbar />
+      <Navbar
+        content={
+          <>
+            {sidebar}
+            <NavbarGroup
+              className="mt-auto"
+              items={[
+                { href: "/", icon: <ClipboardListIcon />, label: "Home" },
+                {
+                  href: "/container",
+                  icon: <ContainerIcon />,
+                  label: "Containers",
+                  total: containerTotal,
+                },
+                {
+                  href: "/item",
+                  icon: <ShoppingBagIcon />,
+                  label: "Items",
+                  total: itemTotal,
+                },
+                {
+                  href: "/tag",
+                  icon: <TagIcon />,
+                  label: "Tags",
+                  total: tagTotal,
+                },
+                {
+                  href: "/type",
+                  icon: <TypeIcon />,
+                  label: "Types",
+                  total: typeTotal,
+                },
+                { href: "/find", icon: <SearchIcon />, label: "Find" },
+                { href: "/reports", icon: <FileTextIcon />, label: "Reports" },
+              ]}
+            />
+          </>
+        }
+        footer={<NavbarUserButton />}
+      >
+        {children}
+      </Navbar>
       {children}
     </>
   );
 }
 
-function Navbar() {
-  return (
-    <header className="flex h-12 shadow bg-navbar-background z-10 pl-3 pr-3 border-0 border-b-2 border-accent-alternate">
-      <nav className="flex gap-4 w-full">
-        <Suspense>
-          <SignedIn>
-            <Link
-              href="/"
-              className="mr-auto text-lg hover:underline flex items-center"
-            >
-              CIT
-            </Link>
-            <ActiveLink href="/">Home</ActiveLink>
-            <ActiveLink href="/container">Containers</ActiveLink>
-            <ActiveLink href="/item">Items</ActiveLink>
-            <ActiveLink href="/tag">Tags</ActiveLink>
-            <ActiveLink href="/type">Types</ActiveLink>
-            <ActiveLink href="/find">Find</ActiveLink>
-            <ActiveLink href="/reports">Reports</ActiveLink>
-            <ActiveLink href="/settings">Settings</ActiveLink>
-          </SignedIn>
-          <div className="size-8 self-center">
-            <UserButton
-              appearance={{
-                elements: {
-                  userButtonAvatarBox: { width: "100%", height: "100%" },
-                },
-              }}
-            />
-          </div>
-        </Suspense>
-        <Suspense>
-          <SignedOut>
-            <Button
-              className="self-center ms-auto hover:cursor-pointer"
-              variant="secondary"
-              asChild
-            >
-              <SignInButton />
-            </Button>
-          </SignedOut>
-        </Suspense>
-        <div className="text-center self-center text-xs">v{appVersion}</div>
-      </nav>
-    </header>
-  );
+async function getContainerTotal() {
+  "use cache";
+
+  cacheTag(getContainerGlobalTag());
+
+  return await db.$count(ContainerTable);
+}
+
+async function getItemTotal() {
+  "use cache";
+
+  cacheTag(getItemGlobalTag());
+
+  return await db.$count(ItemTable);
+}
+
+async function getTagTotal() {
+  "use cache";
+
+  cacheTag(getTagGlobalTag());
+
+  return await db.$count(TagTable);
+}
+
+async function getTypeTotal() {
+  "use cache";
+
+  cacheTag(getTypeGlobalTag());
+
+  return await db.$count(ItemTypeTable);
 }

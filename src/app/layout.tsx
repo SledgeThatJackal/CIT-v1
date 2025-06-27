@@ -1,10 +1,10 @@
 import { Toaster } from "@/components/ui/sonner";
 import { SettingsProvider } from "@/features/settings/hooks/useSettings";
-import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Suspense } from "react";
 import { getSettings } from "@/lib/settings";
+import { ClerkProvider } from "@/services/clerk/components/ClerkProvider";
 
 export const metadata: Metadata = {
   title: "CIT",
@@ -17,19 +17,16 @@ type Props = {
 
 export default async function RootLayout(props: Props) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ClerkProvider
-        signInFallbackRedirectUrl="/"
-        signUpFallbackRedirectUrl="/sign-in"
-      >
-        <html lang="en">
-          <body className="antialiased">
+    <ClerkProvider>
+      <html lang="en">
+        <body className="antialiased">
+          <Suspense>
             <SuspendedPage {...props} />
-            <Toaster richColors expand />
-          </body>
-        </html>
-      </ClerkProvider>
-    </Suspense>
+          </Suspense>
+          <Toaster richColors expand />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
 
