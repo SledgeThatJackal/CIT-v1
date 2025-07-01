@@ -12,13 +12,9 @@ import { Metadata } from "next";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { Suspense } from "react";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const total = (await getContainers()).length;
-
-  return {
-    title: `Container Table | ${total} Container${total !== 1 ? "s" : ""}`,
-  };
-}
+export const metadata: Metadata = {
+  title: "Container Table",
+};
 
 export default function ContainerPage() {
   return (

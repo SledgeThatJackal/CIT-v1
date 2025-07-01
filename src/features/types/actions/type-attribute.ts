@@ -1,6 +1,6 @@
 "use server";
 
-import { getCurrentUser } from "@/services/clerk";
+import { getCurrentUser } from "@/services/clerk/clerk";
 import { canDeleteType } from "../permissions/type";
 import { deleteTypeAttribute as deleteTypeAttributeDb } from "../db/type-attribute";
 

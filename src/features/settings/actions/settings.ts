@@ -1,6 +1,6 @@
 "use server";
 
-import { getCurrentUser } from "@/services/clerk";
+import { getCurrentUser } from "@/services/clerk/clerk";
 import { canUpdateSettings } from "../permissions/settings";
 import { settingsSchema, SettingsType } from "../schema/settings";
 import { updateSettings as updateSettingsDb } from "../db/settings";

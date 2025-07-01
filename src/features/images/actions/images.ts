@@ -1,6 +1,6 @@
 "use server";
 
-import { getCurrentUser } from "@/services/clerk";
+import { getCurrentUser } from "@/services/clerk/clerk";
 import { canCreateImage } from "../permissions/images";
 import { insertImages } from "../db/images";
 

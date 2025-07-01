@@ -4,7 +4,7 @@ import {
   canCreateImage,
   canDeleteImage,
 } from "@/features/images/permissions/images";
-import { getCurrentUser } from "@/services/clerk";
+import { getCurrentUser } from "@/services/clerk/clerk";
 import {
   deleteContainer as deleteContainerDb,
   deleteContainerImages,
