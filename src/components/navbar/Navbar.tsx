@@ -1,3 +1,4 @@
+import { appVersion } from "@/lib/utils";
 import { SignedIn } from "@/services/clerk/components/SignAuth";
 import {
   Sidebar,
@@ -10,7 +11,6 @@ import {
   SidebarTrigger,
 } from "../ui/sidebar";
 import { NavbarClient } from "./NavbarClient";
-import { appVersion } from "@/lib/utils";
 
 export function Navbar({
   children,
@@ -36,14 +36,14 @@ export function Navbar({
               </p>
             </div>
           </SidebarHeader>
-          <SidebarContent>{content}</SidebarContent>
-          <SignedIn>
-            <SidebarFooter>
-              <SidebarMenu>
-                <SidebarMenuItem>{footer}</SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarFooter>
-          </SignedIn>
+          <SidebarContent>
+            <SignedIn>{content}</SignedIn>
+          </SidebarContent>
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>{footer}</SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
         </Sidebar>
         <main className="flex-1">{children}</main>
       </NavbarClient>

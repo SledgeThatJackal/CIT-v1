@@ -1,7 +1,7 @@
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { getCurrentUser } from "@/services/clerk/clerk";
-import { SignOutButton } from "@clerk/nextjs";
-import { LogOutIcon } from "lucide-react";
+import { SignInButton } from "@clerk/nextjs";
+import { LogInIcon } from "lucide-react";
 import { Suspense } from "react";
 import { NavbarUserButtonClient } from "./NavbarUserButtonClient";
 
@@ -20,12 +20,12 @@ async function SuspendedComponent() {
 
   if (user == null)
     return (
-      <SignOutButton>
+      <SignInButton>
         <SidebarMenuButton>
-          <LogOutIcon />
-          <span>Log out</span>
+          <LogInIcon />
+          <span>Log In</span>
         </SidebarMenuButton>
-      </SignOutButton>
+      </SignInButton>
     );
 
   return <NavbarUserButtonClient {...user} />;

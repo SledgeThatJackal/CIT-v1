@@ -84,7 +84,6 @@ async function SuspendedComponent({ children, sidebar }: Props) {
       >
         {children}
       </Navbar>
-      {children}
     </>
   );
 }
