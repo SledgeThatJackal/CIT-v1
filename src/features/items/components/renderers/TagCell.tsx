@@ -13,7 +13,7 @@ import { CellContext } from "@tanstack/react-table";
 import { ItemType } from "../../schema/item";
 import { MultiSelect } from "@/components/ui/custom/multi-select";
 import { useTags } from "@/features/tags/hooks/useTags";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { updateItemTags } from "../../actions/item";
 import { showPromiseToast } from "@/util/Toasts";
@@ -75,8 +75,15 @@ function WriteView({
 }) {
   const tagOptions = useTags();
   const [tags, setTags] = useState(defaultTags.map((tag) => tag.id));
+  const isDirtyRef = useRef<boolean>(false);
 
   function handleBlur() {
+    if (!isDirtyRef.current) {
+      toggleReading?.();
+
+      return;
+    }
+
     const action = updateItemTags.bind(null, itemId);
 
     showPromiseToast(
@@ -84,6 +91,11 @@ function WriteView({
       "Attempting to update tags",
       toggleReading
     );
+  }
+
+  function onSelectedValuesChange(values: string[]) {
+    setTags(values);
+    isDirtyRef.current = true;
   }
 
   return (
@@ -94,7 +106,7 @@ function WriteView({
       getLabel={(tag) => tag.name}
       getValue={(tag) => tag.id}
       selectedValues={tags}
-      onSelectedValuesChange={setTags}
+      onSelectedValuesChange={onSelectedValuesChange}
       onBlur={handleBlur}
     />
   );

@@ -573,31 +573,37 @@ export async function updateItemType(id: string, itemTypeId: string) {
 }
 
 export async function updateItemTags(id: string, tagIds: string[]) {
+  const hasTags = tagIds.length !== 0;
+
   const tags = await db.transaction(async (trx) => {
     // Update
-    const tags = await trx
-      .insert(ItemTagTable)
-      .values(tagIds.map((tag) => ({ itemId: id, tagId: tag })))
-      .onConflictDoNothing({
-        target: [ItemTagTable.itemId, ItemTagTable.tagId],
-      })
-      .returning();
+    const tags = hasTags
+      ? await trx
+          .insert(ItemTagTable)
+          .values(tagIds.map((tag) => ({ itemId: id, tagId: tag })))
+          .onConflictDoNothing({
+            target: [ItemTagTable.itemId, ItemTagTable.tagId],
+          })
+          .returning()
+      : [];
 
     // Remove
     await trx.delete(ItemTagTable).where(
       and(
         eq(ItemTagTable.itemId, id),
-        notExists(
-          db
-            .select()
-            .from(
-              sql`(values ${sql.join(
-                tagIds.map((tag) => sql`(${tag}::uuid)`),
-                sql`,`
-              )}) as new_tags(tag_id)`
+        hasTags
+          ? notExists(
+              db
+                .select()
+                .from(
+                  sql`(values ${sql.join(
+                    tagIds.map((tag) => sql`(${tag}::uuid)`),
+                    sql`,`
+                  )}) as new_tags(tag_id)`
+                )
+                .where(sql`new_tags.tag_id = ${ItemTagTable.tagId}`)
             )
-            .where(sql`new_tags.tag_id = ${ItemTagTable.tagId}`)
-        )
+          : undefined
       )
     );
 
